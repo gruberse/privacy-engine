@@ -1,0 +1,32 @@
+program.use_edabit(True)
+
+from Compiler.types import sint
+from Compiler.types import sintbit
+
+N = 100
+M = 500
+
+mat = sint.Matrix(N, N)
+mat.read_from_file(0)
+res = sint.Array(M)
+
+@for_range_opt(M)
+def _(i):
+    sum = sint(0)
+    @foreach_enumerate([0] * N)
+    def _(j, k):
+        sum.update(sum + mat[j][k])
+    res[i] = sum
+
+mi = tree_reduce(lambda x, y: x.min(y), res)
+ma = tree_reduce(lambda x, y: x.max(y), res)
+span = ma - mi
+thresh = ma - span.right_shift(2)
+
+geqs = sint.Array(M)
+
+@for_range_opt(M)
+def _(i):
+    geqs[i] = res[i].greater_equal(thresh)
+
+geqs.print_reveal_nested()

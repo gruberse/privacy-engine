@@ -1,0 +1,6 @@
+from Compiler.types import sint
+
+N = 100
+
+arr = sint.get_input_from(0, size=N*N)
+sint.write_to_file(arr)

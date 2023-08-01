@@ -1,0 +1,6 @@
+uvicorn
+fastapi
+pyinstaller
+starlette-prometheus
+httpx
+pydantic-settings

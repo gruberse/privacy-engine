@@ -1,0 +1,70 @@
+services:
+  pe:
+    build:
+      context: "./app"
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/pe-controller
+    ports:
+      - "127.0.0.1:80:8000"
+    environment:
+      - PEERS={"A":"http://192.168.0.1:8000","B":"http://192.168.0.2:8000","C":"http://192.168.0.3:8000"}
+      - ENCODER=http://192.168.0.9:8000
+    networks:
+      mpc_net:
+        ipv4_address: 192.168.0.11
+  mpc1:
+    build:
+      context: "./mpc"
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    environment:
+      - ID=0
+      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+    expose:
+      - "5000"
+      - "8000"
+    networks:
+      mpc_net:
+        ipv4_address: 192.168.0.1
+  mpc2:
+    build:
+      context: "./mpc"
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    environment:
+      - ID=1
+      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+    expose:
+      - "5001"
+      - "8000"
+    networks:
+      mpc_net:
+        ipv4_address: 192.168.0.2
+  mpc3:
+    build:
+      context: "./mpc"
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    environment:
+      - ID=2
+      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+    expose:
+      - "5002"
+      - "8000"
+    networks:
+      mpc_net:
+        ipv4_address: 192.168.0.3
+  enc:
+    build:
+      context : "./enc"
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/pe-enc
+    expose:
+      - "8000"
+    ports:
+      - "127.0.0.1:8081:8000"
+    networks:
+      mpc_net:
+        ipv4_address: 192.168.0.9
+networks:
+  mpc_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/24
+          gateway: 192.168.0.12
