@@ -2,13 +2,15 @@ FROM alpine:latest as base
 
 FROM base as builder
 
-RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v0.3.6.tar.gz
+ARG v=0.3.7
 
-RUN tar xvfz v0.3.6.tar.gz
+RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
+
+RUN tar xvfz v$v.tar.gz
 
 RUN apk add make g++ libsodium-dev musl-dev bash openssl openssl-dev ca-certificates gmp-dev python3-dev py3-pip boost-dev
 
-WORKDIR MP-SPDZ-0.3.6
+WORKDIR MP-SPDZ-$v
 
 # RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
 RUN echo "CXX = g++" >> CONFIG.mine
@@ -42,20 +44,22 @@ RUN pyinstaller mpc_node.py
 
 FROM base
 
+ARG v=0.3.7
+
 RUN apk add bash libgmpxx libsodium
 
-COPY --from=builder /MP-SPDZ-0.3.6/libSPDZ.so /
-COPY --from=builder /MP-SPDZ-0.3.6/shamir-party.x /
-COPY --from=builder /MP-SPDZ-0.3.6/Player-Data /Player-Data
-COPY --from=builder /MP-SPDZ-0.3.6/Scripts/run-common.sh /Scripts/run-common.sh
-COPY --from=builder /MP-SPDZ-0.3.6/Scripts/shamir.sh /Scripts/shamir.sh
+COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
+COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
+COPY --from=builder /MP-SPDZ-$v/Player-Data /Player-Data
+COPY --from=builder /MP-SPDZ-$v/Scripts/run-common.sh /Scripts/run-common.sh
+COPY --from=builder /MP-SPDZ-$v/Scripts/shamir.sh /Scripts/shamir.sh
 
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Bytecode/fitness_clear-0.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Schedules/fitness_clear.sch /Programs/Schedules/
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Bytecode/population_order-0.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Schedules/population_order.sch /Programs/Schedules/
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Bytecode/classification-0.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-0.3.6/Programs/Schedules/classification.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/fitness_clear-0.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/fitness_clear.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/population_order-0.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/population_order.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/classification-0.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/classification.sch /Programs/Schedules/
 
 COPY --from=builder /dist /
 
