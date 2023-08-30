@@ -2,7 +2,7 @@ from asyncio import gather
 
 import uvicorn
 from fastapi import Body, FastAPI, Response, status
-from httpx import AsyncClient, put
+from httpx import AsyncClient, put, ReadTimeout
 from json.decoder import JSONDecodeError
 from pydantic import BaseModel, Field, AnyUrl
 from pydantic_settings import BaseSettings
@@ -102,7 +102,10 @@ async def create_session_clear(response: Response, request: PlainTextSetup):
     ret = []
     for k, url in settings.peers.items():
         ret.append(client.put(str(url) + "session", json={'matrix': shared[k]}))
-    ret = await gather(*ret)
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     if all(r.status_code == 201 for r in ret):
         return
     else:
@@ -120,7 +123,10 @@ async def get_status(response: Response):
     ret = []
     for k, url in settings.peers.items():
         ret.append(client.get(str(url) + "status"))
-    ret = await gather(*ret)
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     if any(r.status_code != 200 for r in ret):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=503, message="MPC node unavailable")
@@ -147,7 +153,10 @@ async def create_session_secret(response: Response, request: SecretSharedSetup):
     ret = []
     for k, v in request.weights.items():
         ret.append(client.put(str(settings.peers[k]) + "session", json={'matrix': v}))
-    ret = await gather(*ret)
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     if any(r.status_code != 201 for r in ret):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return Error(code=503, message="MPC node unavailable")
@@ -175,7 +184,10 @@ async def compute_fitness_clear(
     ret = []
     for k, url in settings.peers.items():
         ret.append(client.put(str(url) + "computeFitnessClear", json={'configurations': data}))
-    ret = await gather(*ret)
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
         return res.json()
@@ -206,8 +218,11 @@ async def compute_population_order(
         return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computePopulationOrder", json={'configurations': data}, timeout=30.0))
-    ret = await gather(*ret)
+        ret.append(client.put(str(url) + "computePopulationOrder", json={'configurations': data}, timeout=300.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
@@ -239,7 +254,10 @@ async def compute_classification(
     ret = []
     for k, url in settings.peers.items():
         ret.append(client.put(str(url) + "computeClassification", json={'configurations': data}, timeout=30.0))
-    ret = await gather(*ret)
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
