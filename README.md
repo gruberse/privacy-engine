@@ -17,12 +17,12 @@ HARMONIC: MP-SPDZ 0.3.7
 
 Results in seconds for `test.py` @ 78a6bd35  
 matrix size 100; population size 500  
-no delay/packet loss
+variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
-| | SlotMachine | HARMONIC Shamir  | HARMONIC Replicated |
-| -- | -- | -- | -- |
-| Clear | 0.63 | 0.55 | . |
-| Order | 100.15 | 10.84 | . |
-| Classification | 11.22 | 0.86<sup>*</sup> | . |
+| | SlotMachine | HARMONIC<br> Shamir 0ms  | HARMONIC<br> Shamir 1ms | HARMONIC<br> Shamir 2ms | HARMONIC<br> Shamir 3ms |
+| -- | -- | -- | -- | -- | -- |
+| Clear | 0.63 | 0.55 | 0.58 | 0.69 | 0.75 | 
+| Order | 100.15 | 10.84 | 19.15 | 32.07 | 41.78 |
+| Classification | 11.22 | 0.86<sup>*</sup> | 1.52<sup>*</sup> | 2.26<sup>*</sup> | 3.00<sup>*</sup> |
 
 <sup>*</sup> without "improvement over last run", "best run so far"
