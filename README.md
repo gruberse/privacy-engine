@@ -23,6 +23,6 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
 | Clear | 0.63 | 0.55 | 0.58 | 0.69 | 0.75 | 0.54 | 0.57 | 0.52 | 0.52 |
 | Order | 100.15 | 10.84 | 19.15 | 32.07 | 41.78 | 1.93 | 2.00 | 2.03 | 1.97 |
-| Classification<sup>*</sup> | 11.22 | 0.86 | 1.52 | 2.26 | 3.00 | 1.21 | 1.21 | 1.21 | 1.23 |
+| Classification | 11.22 | 0.86<sup>*</sup> | 1.52<sup>*</sup> | 2.26<sup>*</sup> | 3.00<sup>*</sup> | 1.21<sup>*</sup> | 1.21<sup>*</sup> | 1.21<sup>*</sup> | 1.23<sup>*</sup> |
 
 <sup>*</sup> without "improvement over last run", "best run so far"
