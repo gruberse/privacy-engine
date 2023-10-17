@@ -19,10 +19,40 @@ Results in seconds for `test.py` @ 78a6bd35
 matrix size 100; population size 500  
 variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
-| | SlotMachine | HARMONIC<br> Shamir 0ms  | HARMONIC<br> Shamir 1ms | HARMONIC<br> Shamir 2ms | HARMONIC<br> Shamir 3ms | HARMONIC<br> Replicated Field 0ms | HARMONIC<br> Replicated Field 1ms | HARMONIC<br> Replicated Field 2ms | HARMONIC<br> Replicated Field 3ms |
-| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
-| Clear | 0.63 | 0.55 | 0.58 | 0.69 | 0.75 | 0.54 | 0.66 | 0.66 | 0.73 |
-| Order | 100.15 | 10.84 | 19.15 | 32.07 | 41.78 | 1.93 | 4.68 | 7.97 | 11.03 |
-| Classification | 11.22 | 0.86<sup>*</sup> | 1.52<sup>*</sup> | 2.26<sup>*</sup> | 3.00<sup>*</sup> | 1.21<sup>*</sup> | 4.28<sup>*</sup> | 7.43<sup>*</sup> | 10.66<sup>*</sup> |
+### Clear (fitness value of a single configuration)
+
+| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| --- | --- | --- | --- |
+| 0 ms | 0.63 | 0.55 | 0.54 |
+| 1 ms | - | 0.58 | 0.66 |
+| 2 ms | - | 0.69 | 0.66 |
+| 3 ms | - | 0.75 | 0.73 |
+
+### Order (sorted fitness values of 500 configurations)
+
+| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| --- | --- | --- | --- |
+| 0 ms | 100.15 | 10.84 | 1.93 |
+| 1 ms | - | 19.15 | 4.68 |
+| 2 ms | - | 32.07 | 7.97 |
+| 3 ms | - | 41.78 | 11.03 |
+
+### Classification (500 configurations, 2 classes)
+
+| latency | SlotMachine | HARMONIC Shamir<sup>*</sup> | HARMONIC Replicated Field<sup>*</sup> |
+| --- | --- | --- | --- |
+| 0 ms | 11.22 | 0.86 | 1.21 |
+| 1 ms | - | 1.52 | 4.28 |
+| 2 ms | - | 2.26 | 7.43 |
+| 3 ms | - | 3.00 | 10.66 |
 
 <sup>*</sup> without "improvement over last run", "best run so far"
+
+### lap_solver (exact solution)
+
+| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| --- | --- | --- | --- |
+| 0 ms | - | - | - |
+| 1 ms | - | - | 650 |
+| 2 ms | - | - | - |
+| 3 ms | - | - | - |
