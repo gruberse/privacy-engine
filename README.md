@@ -48,7 +48,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 <sup>*</sup> without "improvement over last run", "best run so far"
 
-### lap_solver (exact solution)
+### lap_solver (exact solution; average of 10 runs with random matrices)
 
 | latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
 | --- | --- | --- | --- |
