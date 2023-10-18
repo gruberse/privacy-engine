@@ -52,7 +52,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 | latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
 | --- | --- | --- | --- |
-| 0 ms | - | - | - |
+| 0 ms | - | - | 175 |
 | 1 ms | - | - | 650 |
 | 2 ms | - | - | - |
 | 3 ms | - | - | - |
