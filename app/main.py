@@ -7,7 +7,7 @@ from json.decoder import JSONDecodeError
 from pydantic import BaseModel, Field, AnyUrl
 from pydantic_settings import BaseSettings
 from starlette_prometheus import metrics, PrometheusMiddleware
-from typing import List, Mapping
+from typing import List, Mapping, Tuple
 
 client = AsyncClient()
 
@@ -267,6 +267,29 @@ async def compute_classification(
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")
 
+
+@app.put("/computeExact",
+         summary="Compute an exact solution",
+         tags=["secret-shared"],
+         responses={200: {"model": List[Tuple[int, int]]},
+                    400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
+async def compute_exact(response: Response):
+    """
+    Return an unordered list of configurations that exceed a desired threshold
+    """
+    ret = []
+    for k, url in settings.peers.items():
+        ret.append(client.put(str(url) + "computeExact", timeout=300.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
+    res = ret[0]
+    if all(r.status_code == 200 for r in ret):
+        return res.json()
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message=f"unexpected error: {res}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

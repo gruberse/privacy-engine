@@ -1,0 +1,109 @@
+from Compiler.types import cint
+from Compiler.types import sint
+
+N = 100
+
+cost = sint.Matrix(N, N)
+cost.read_from_file(0)
+
+u = sint.Array(N)
+v = sint.Array(N)
+
+temp = sint.Array(N)
+
+@for_range(N)
+def _(i):
+    @for_range_opt(N)
+    def _(j):
+        temp[j] = cost[i][j]
+    u[i] = tree_reduce(lambda x, y: x.min(y), temp)
+
+@for_range(N)
+def _(j):
+    @for_range_opt(N)
+    def _(i):
+        temp[i] = cost[i][j] - u[i]
+    v[j] = tree_reduce(lambda x, y: x.min(y), temp)
+
+l_mate = regint.Array(N)
+r_mate = regint.Array(N)
+l_mate.assign_all(-1)
+r_mate.assign_all(-1)
+
+mated = regint(0)
+
+@for_range(N)
+def _(i):
+    @for_range(N)
+    def _(j):
+        @if_((r_mate[j] == -1).bit_and(l_mate[i] == -1).bit_and((cost[i][j] - u[i] - v[j]).reveal() == 0))
+        def _():
+            l_mate[i] = j
+            r_mate[j] = i
+            mated.update(mated + 1)
+
+dist = sint.Array(N)
+dad = regint.Array(N)
+seen = regint.Array(N)
+j = MemValue(regint(-1))
+s = MemValue(regint(0))
+
+@while_do(lambda: mated < N)
+def f():
+    s.write(0)
+
+    @while_do(lambda: l_mate[s] != -1)
+    def f0():
+        s.write(s + 1)
+
+    @for_range_opt(N)
+    def f0(k):
+        dist[k] = cost[s][k] - u[s] - v[k]
+
+    dad.assign_all(-1)
+    seen.assign_all(0)
+
+    @do_while
+    def f0():
+        j.write(-1)
+        @for_range(N)
+        def f1(k):
+            @if_(seen[k].bit_not().bit_and((j == -1).bit_or(dist[k] < dist[j]).reveal()))
+            def f2():
+                j.write(k)
+        seen[j] = 1
+        i = regint(r_mate[j])
+        @if_(i != -1)
+        def f1():
+            @for_range(N)
+            def f2(k):
+                @if_(seen[k].bit_not())
+                def f3():
+                    new_dist = dist[j] + cost[i][k] - u[i] - v[k]
+                    @if_((dist[k] > new_dist).reveal())
+                    def f4():
+                        dist[k] = new_dist
+                        dad[k] = j
+        return i != -1
+
+    @for_range_opt(N)
+    def f0(k):
+        @if_((k != j).bit_and(seen[k]))
+        def g():
+            v[k] += dist[k] - dist[j]
+            u[r_mate[k]] -= dist[k] - dist[j]
+    u[s] += dist[j]
+
+    @while_do(lambda: dad[j] >= 0)
+    def f0():
+        d = dad[j]
+        r_mate[j] = r_mate[d]
+        l_mate[r_mate[j]] = j
+        j.write(d)
+        break_point()
+
+    r_mate[j] = s
+    l_mate[s] = j
+    mated.update(mated + 1)
+
+print_ln('%s', l_mate)

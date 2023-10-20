@@ -113,6 +113,21 @@ async def compute3(response: Response, request: ComputeRequest):
     remove(f"out-P{settings.id}-0")
     return [i for i, x in enumerate(res) if x]
 
+
+@app.put("/computeExact")
+async def compute4(response: Response):
+    try:
+        new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
+        line = ["./shamir-party.x", str(settings.id), "lap_solver", "-ip", "Parties", "-N", "3", "-OF", "out"]
+        run(line, check=True, env=new_env)
+    except CalledProcessError as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return e.returncode
+    with open(f"out-P{settings.id}-0") as file:
+        res = literal_eval(file.read())
+    remove(f"out-P{settings.id}-0")
+    return [i for i, x in enumerate(res) if x]
+
 if __name__ == "__main__":
     os.mkdir("/Persistence")
     os.mkdir("/Programs/Public-Input")

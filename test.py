@@ -64,3 +64,10 @@ if r4.json() == {'highest': -1, 'best': False, 'indices': res4}:
 else:
     print(res4)
     print(r4.json())
+
+print("\tCompute Exact Solution")
+t1 = time.time()
+r5 = requests.put("http://127.0.0.1:80/computeExact", json=configs)
+t2 = time.time()
+print(r5)
+print(f"time: {t2 - t1:.2f}s")
