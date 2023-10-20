@@ -56,3 +56,16 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 | 1 ms | - | - | 650 |
 | 2 ms | - | - | - |
 | 3 ms | - | - | - |
+
+
+## Benchmarks on l3dss2302
+
+### lap_solver (exact solution; average of 10 runs with random matrices)
+
+| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| --- | --- | --- | --- |
+| 0 ms | - | - | 35 |
+| 1 ms | - | - | - |
+| 5 ms | - | - | - |
+| 10 ms | - | - | - |
+
