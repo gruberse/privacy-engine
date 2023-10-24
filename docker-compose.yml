@@ -24,6 +24,8 @@ services:
     networks:
       mpc_net:
         ipv4_address: 192.168.0.1
+    cap_add:
+      - NET_ADMIN
   mpc2:
     build:
       context: "./mpc"
@@ -37,6 +39,8 @@ services:
     networks:
       mpc_net:
         ipv4_address: 192.168.0.2
+    cap_add:
+      - NET_ADMIN
   mpc3:
     build:
       context: "./mpc"
@@ -50,6 +54,8 @@ services:
     networks:
       mpc_net:
         ipv4_address: 192.168.0.3
+    cap_add:
+      - NET_ADMIN
   enc:
     build:
       context : "./enc"
