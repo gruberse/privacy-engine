@@ -18,7 +18,7 @@ RUN echo "USE_NTL = 0" >> CONFIG.mine
 RUN echo "MY_CFLAGS += -I/usr/local/include" >> CONFIG.mine
 RUN echo "MY_LDLIBS += -Wl,-rpath -Wl,/usr/local/lib -L/usr/local/lib" >> CONFIG.mine
 
-RUN make shamir-party.x
+RUN make shamir-party.x replicated-field-party.x
 
 COPY encode.mpc Programs/Source
 
@@ -46,9 +46,11 @@ RUN apk add bash libgmpxx libsodium
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
+COPY --from=builder /MP-SPDZ-$v/replicated-field-party.x /
 COPY --from=builder /MP-SPDZ-$v/Player-Data /Player-Data
 COPY --from=builder /MP-SPDZ-$v/Scripts/run-common.sh /Scripts/run-common.sh
 COPY --from=builder /MP-SPDZ-$v/Scripts/shamir.sh /Scripts/shamir.sh
+COPY --from=builder /MP-SPDZ-$v/Scripts/rep-field.sh /Scripts/rep-field.sh
 
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/encode-0.bc /Programs/Bytecode/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/encode.sch /Programs/Schedules/

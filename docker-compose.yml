@@ -18,6 +18,7 @@ services:
     environment:
       - ID=0
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - ALGORITHM=${ALGO}
     expose:
       - "5000"
       - "8000"
@@ -33,6 +34,7 @@ services:
     environment:
       - ID=1
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - ALGORITHM=${ALGO}
     expose:
       - "5001"
       - "8000"
@@ -48,6 +50,7 @@ services:
     environment:
       - ID=2
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - ALGORITHM=${ALGO}
     expose:
       - "5002"
       - "8000"
@@ -60,6 +63,8 @@ services:
     build:
       context : "./enc"
     # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/pe-enc
+    environment:
+      - ALGORITHM=${ALGO}
     expose:
       - "8000"
     ports:

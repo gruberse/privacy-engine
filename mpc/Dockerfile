@@ -18,7 +18,7 @@ RUN echo "USE_NTL = 0" >> CONFIG.mine
 RUN echo "MY_CFLAGS += -I/usr/local/include" >> CONFIG.mine
 RUN echo "MY_LDLIBS += -Wl,-rpath -Wl,/usr/local/lib -L/usr/local/lib" >> CONFIG.mine
 
-RUN make shamir-party.x
+RUN make shamir-party.x replicated-field-party.x
 
 COPY fitness_clear.mpc Programs/Source
 COPY population_order.mpc Programs/Source
@@ -52,6 +52,7 @@ RUN apk add bash libgmpxx libsodium
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
+COPY --from=builder /MP-SPDZ-$v/replicated-field-party.x /
 COPY --from=builder /MP-SPDZ-$v/Player-Data /Player-Data
 
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/fitness_clear-0.bc /Programs/Bytecode/
@@ -65,4 +66,5 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/lap_solver.sch /Programs/Sche
 
 COPY --from=builder /dist /
 
-ENTRYPOINT /mpc_node/mpc_node
+RUN apk add iproute2
+ENTRYPOINT tc qdisc add dev eth0 root netem delay 0ms && /mpc_node/mpc_node

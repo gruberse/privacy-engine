@@ -1,9 +1,10 @@
 import uvicorn
 from fastapi import Body, FastAPI, HTTPException, status
-from os import remove
+from os import getenv, remove
 from pydantic import BaseModel
 from starlette_prometheus import metrics, PrometheusMiddleware
 from subprocess import CalledProcessError, run
+from sys import exit
 from typing import List, Mapping
 
 app = FastAPI()
@@ -34,7 +35,12 @@ def split(data: List[int]):
     with open("Player-Data/Input-P0-0", 'w') as file:
         file.write("\n".join(map(str, data)))
     try:
-        run(["Scripts/shamir.sh", "encode"], capture_output=True, check=True)
+        if algorithm == "shamir":
+            run(["Scripts/shamir.sh", "encode"], capture_output=True, check=True)
+        elif algorithm == "replicated":
+            run(["Scripts/rep-field.sh", "encode"], capture_output=True, check=True)
+        else:
+            exit(f"unknown algorithm: '{algorithm}'")
     except CalledProcessError as e:
         print(e.returncode)
         print(e.stdout)
@@ -85,4 +91,9 @@ async def encode(data: WeightMap):
 
 
 if __name__ == "__main__":
+    algorithm = getenv("ALGORITHM")
+    if algorithm == "":
+        algorithm = "shamir"
+    elif algorithm not in ["shamir", "replicated"]:
+        exit(f"unknown algorithm: '{algorithm}'")
     uvicorn.run(app, host="0.0.0.0", port=8000)

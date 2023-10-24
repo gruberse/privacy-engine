@@ -1,18 +1,18 @@
-import os
-
 import uvicorn
 from ast import literal_eval
 from fastapi import FastAPI, Response, status
-from os import remove
+from os import mkdir, remove
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 from subprocess import CalledProcessError, run
+from sys import exit
 from typing import List
 
 
 class Settings(BaseSettings):
     id: int
     parties: List[str]
+    algorithm: str = "shamir"
 
 
 class ComputeRequest(BaseModel):
@@ -23,8 +23,18 @@ class MatrixSetup(BaseModel):
     matrix: str
 
 
+new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
 app = FastAPI(title="SlotMachine PrivacyEngine Controller")
 settings = Settings()
+
+
+def call_mpspdz(program: str):
+    if settings.algorithm == "shamir":
+        return ["./shamir-party.x", str(settings.id), program, "-ip", "Parties", "-N", "3", "-OF", "out"]
+    elif settings.algorithm == "replicated":
+        return ["./replicated-field-party.x", "-ip", "Parties", "-OF", "out", "-p", str(settings.id), program]
+    else:
+        exit(f"unknown algorithm: '{settings.algorithm}'")
 
 
 @app.get("/status")
@@ -54,9 +64,7 @@ async def compute(response: Response, request: ComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
-        line = ["./shamir-party.x", str(settings.id), "fitness_clear", "-ip", "Parties", "-N", "3", "-OF", "out"]
-        run(line, check=True, env=new_env)
+        run(call_mpspdz("fitness_clear"), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
@@ -77,9 +85,7 @@ async def compute2(response: Response, request: ComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
-        line = ["./shamir-party.x", str(settings.id), "population_order", "-ip", "Parties", "-N", "3", "-OF", "out"]
-        run(line, check=True, env=new_env)
+        run(call_mpspdz("population_order"), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
@@ -102,9 +108,7 @@ async def compute3(response: Response, request: ComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
-        line = ["./shamir-party.x", str(settings.id), "classification", "-ip", "Parties", "-N", "3", "-OF", "out"]
-        run(line, check=True, env=new_env)
+        run(call_mpspdz("classification"), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
@@ -117,9 +121,7 @@ async def compute3(response: Response, request: ComputeRequest):
 @app.put("/computeExact")
 async def compute4(response: Response):
     try:
-        new_env = {"LD_LIBRARY_PATH": ".:$LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH": ".:$DYLD_LIBRARY_PATH"}
-        line = ["./shamir-party.x", str(settings.id), "lap_solver", "-ip", "Parties", "-N", "3", "-OF", "out"]
-        run(line, check=True, env=new_env)
+        run(call_mpspdz("lap_solver"), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
@@ -129,8 +131,12 @@ async def compute4(response: Response):
     return [i for i, x in enumerate(res) if x]
 
 if __name__ == "__main__":
-    os.mkdir("/Persistence")
-    os.mkdir("/Programs/Public-Input")
+    if settings.algorithm == "":
+        settings.algorithm = "shamir"
+    elif settings.algorithm not in ["shamir", "replicated"]:
+        exit(f"unknown algorithm: '{settings.algorithm}'")
+    mkdir("/Persistence")
+    mkdir("/Programs/Public-Input")
     with open(f"Parties", 'w') as f:
         f.write("\n".join(s for s in settings.parties))
     uvicorn.run(app, host="0.0.0.0", port=8000)
