@@ -8,7 +8,7 @@ RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
 
 RUN tar xvfz v$v.tar.gz
 
-RUN apk add make g++ libsodium-dev musl-dev bash openssl openssl-dev ca-certificates gmp-dev python3-dev py3-pip boost1.82-dev
+RUN apk add make g++ libsodium-dev musl-dev bash openssl openssl-dev ca-certificates gmp-dev python3-dev py3-pip boost-dev
 
 WORKDIR MP-SPDZ-$v
 
