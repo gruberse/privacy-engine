@@ -2,7 +2,7 @@ FROM alpine:latest as base
 
 FROM base as builder
 
-ARG v=0.3.7
+ARG v=0.3.8
 
 RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
 
@@ -15,8 +15,6 @@ WORKDIR MP-SPDZ-$v
 # RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
 RUN echo "CXX = g++" >> CONFIG.mine
 RUN echo "USE_NTL = 0" >> CONFIG.mine
-RUN echo "MY_CFLAGS += -I/usr/local/include" >> CONFIG.mine
-RUN echo "MY_LDLIBS += -Wl,-rpath -Wl,/usr/local/lib -L/usr/local/lib" >> CONFIG.mine
 
 RUN make shamir-party.x replicated-field-party.x
 
@@ -40,9 +38,9 @@ RUN pyinstaller encode.py
 
 FROM base
 
-ARG v=0.3.7
+ARG v=0.3.8
 
-RUN apk add bash libgmpxx libsodium
+RUN apk add bash libgmpxx libsodium boost1.82-filesystem boost1.82-iostreams
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
