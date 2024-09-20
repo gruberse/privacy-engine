@@ -1,14 +1,17 @@
-FROM alpine:latest as base
+FROM ubuntu:24.04 as base
+
+RUN apt update
+RUN apt upgrade -y
 
 FROM base as builder
 
-RUN apk add binutils py3-pip
+RUN apt install -y python3-pip
 
 COPY requirements.txt /
 
-RUN pip install wheel
+RUN pip install --break-system-packages wheel
 
-RUN pip install -r /requirements.txt
+RUN pip install --break-system-packages -r /requirements.txt
 
 COPY main.py /
 

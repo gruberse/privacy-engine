@@ -1,19 +1,21 @@
-FROM alpine:latest as base
+FROM ubuntu:24.04 as base
+
+RUN apt update
+RUN apt upgrade -y
 
 FROM base as builder
 
-ARG v=0.3.8
+ARG v=0.3.9
+
+RUN apt install -y wget clang libsodium-dev python3-pip libgmp-dev libssl-dev libboost1.83-dev libboost-iostreams1.83-dev libboost-filesystem1.83-dev
 
 RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
 
 RUN tar xvfz v$v.tar.gz
 
-RUN apk add make g++ libsodium-dev musl-dev bash openssl openssl-dev ca-certificates gmp-dev python3-dev py3-pip boost-dev
-
 WORKDIR MP-SPDZ-$v
 
 # RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
-RUN echo "CXX = g++" >> CONFIG.mine
 RUN echo "USE_NTL = 0" >> CONFIG.mine
 
 RUN make shamir-party.x replicated-field-party.x
@@ -28,9 +30,9 @@ WORKDIR /
 
 COPY requirements.txt /
 
-RUN pip install wheel
+RUN pip install --break-system-packages wheel
 
-RUN pip install -r /requirements.txt
+RUN pip install --break-system-packages -r /requirements.txt
 
 COPY encode.py /
 
@@ -38,9 +40,9 @@ RUN pyinstaller encode.py
 
 FROM base
 
-ARG v=0.3.8
+ARG v=0.3.9
 
-RUN apk add bash libgmpxx libsodium boost1.82-filesystem boost1.82-iostreams
+RUN apt install -y libgmp10 libsodium23 libboost-filesystem1.83.0 libboost-iostreams1.83.0 libboost-system1.83.0 libgmpxx4ldbl
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
@@ -50,7 +52,7 @@ COPY --from=builder /MP-SPDZ-$v/Scripts/run-common.sh /Scripts/run-common.sh
 COPY --from=builder /MP-SPDZ-$v/Scripts/shamir.sh /Scripts/shamir.sh
 COPY --from=builder /MP-SPDZ-$v/Scripts/rep-field.sh /Scripts/rep-field.sh
 
-COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/encode-0.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/encode-*.bc /Programs/Bytecode/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/encode.sch /Programs/Schedules/
 RUN mkdir Programs/Public-Input
 
