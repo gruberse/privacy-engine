@@ -6,25 +6,19 @@ services:
     ports:
       - "127.0.0.1:80:8000"
     environment:
-      - PEERS={"A":"http://192.168.0.1:8420","B":"http://192.168.0.2:8421","C":"http://192.168.0.3:8422"}
-      - ENCODER=http://192.168.0.9:8642
-    networks:
-      mpc_net:
-        ipv4_address: 192.168.0.11
+      - PEERS={"A":"http://mpc1:8420","B":"http://mpc2:8421","C":"http://mpc3:8422"}
+      - ENCODER=http://enc:8642
   mpc1:
     build:
       context: "./mpc"
     image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=0
-      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - PARTIES=["mpc1", "mpc2", "mpc3"]
       - ALGORITHM=${ALGO}
     expose:
       - "5000"
       - "8420"
-    networks:
-      mpc_net:
-        ipv4_address: 192.168.0.1
     cap_add:
       - NET_ADMIN
   mpc2:
@@ -33,14 +27,11 @@ services:
     # image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=1
-      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - PARTIES=["mpc1", "mpc2", "mpc3"]
       - ALGORITHM=${ALGO}
     expose:
       - "5001"
       - "8421"
-    networks:
-      mpc_net:
-        ipv4_address: 192.168.0.2
     cap_add:
       - NET_ADMIN
   mpc3:
@@ -49,14 +40,11 @@ services:
     # image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=2
-      - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
+      - PARTIES=["mpc1", "mpc2", "mpc3"]
       - ALGORITHM=${ALGO}
     expose:
       - "5002"
       - "8422"
-    networks:
-      mpc_net:
-        ipv4_address: 192.168.0.3
     cap_add:
       - NET_ADMIN
   enc:
@@ -67,13 +55,3 @@ services:
       - ALGORITHM=${ALGO}
     expose:
       - "8642"
-    networks:
-      mpc_net:
-        ipv4_address: 192.168.0.9
-networks:
-  mpc_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.0.0/24
-          gateway: 192.168.0.12
