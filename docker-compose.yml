@@ -2,7 +2,7 @@ services:
   pe:
     build:
       context: "./app"
-    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/pe-controller
+    image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/pe-controller
     ports:
       - "127.0.0.1:80:8000"
     environment:
@@ -14,7 +14,7 @@ services:
   mpc1:
     build:
       context: "./mpc"
-    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=0
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
@@ -30,7 +30,7 @@ services:
   mpc2:
     build:
       context: "./mpc"
-    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=1
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
@@ -46,7 +46,7 @@ services:
   mpc3:
     build:
       context: "./mpc"
-    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/mpc_node
+    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/mpc_node
     environment:
       - ID=2
       - PARTIES=["192.168.0.1", "192.168.0.2", "192.168.0.3"]
@@ -62,7 +62,7 @@ services:
   enc:
     build:
       context : "./enc"
-    # image: git-service.ait.ac.at:8010/sct-slotmachine-public/privacyengine-container/pe-enc
+    image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/pe-enc
     environment:
       - ALGORITHM=${ALGO}
     expose:
