@@ -4,6 +4,7 @@ from fastapi import FastAPI, Response, status
 from os import mkdir, remove
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
+from shutil import rmtree
 from subprocess import CalledProcessError, run
 from sys import exit
 from typing import List
@@ -135,8 +136,10 @@ if __name__ == "__main__":
         settings.algorithm = "shamir"
     elif settings.algorithm not in ["shamir", "replicated"]:
         exit(f"unknown algorithm: '{settings.algorithm}'")
+    rmtree("/Persistence", ignore_errors=True)
     mkdir("/Persistence")
+    rmtree("/Programs/Public-Input", ignore_errors=True)
     mkdir("/Programs/Public-Input")
-    with open(f"Parties", 'w') as f:
+    with open("Parties", 'w') as f:
         f.write("\n".join(s for s in settings.parties))
     uvicorn.run(app, host="0.0.0.0", port=(8420 + settings.id))
