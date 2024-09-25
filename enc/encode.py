@@ -93,7 +93,7 @@ async def encode(data: WeightMap):
 if __name__ == "__main__":
     algorithm = getenv("ALGORITHM")
     if algorithm == "":
-        algorithm = "shamir"
+        algorithm = "replicated"
     elif algorithm not in ["shamir", "replicated"]:
         exit(f"unknown algorithm: '{algorithm}'")
     uvicorn.run(app, host="0.0.0.0", port=8642)

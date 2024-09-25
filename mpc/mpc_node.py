@@ -13,7 +13,7 @@ from typing import List
 class Settings(BaseSettings):
     id: int
     parties: List[str]
-    algorithm: str = "shamir"
+    algorithm: str = "replicated"
 
 
 class ComputeRequest(BaseModel):
@@ -133,7 +133,7 @@ async def compute4(response: Response):
 
 if __name__ == "__main__":
     if settings.algorithm == "":
-        settings.algorithm = "shamir"
+        settings.algorithm = "replicated"
     elif settings.algorithm not in ["shamir", "replicated"]:
         exit(f"unknown algorithm: '{settings.algorithm}'")
     rmtree("/Persistence", ignore_errors=True)
