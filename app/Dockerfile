@@ -1,9 +1,9 @@
-FROM ubuntu:24.04 as base
+FROM ubuntu:24.04 AS base
 
 RUN apt update
 RUN apt upgrade -y
 
-FROM base as builder
+FROM base AS builder
 
 RUN apt install -y python3-pip
 
