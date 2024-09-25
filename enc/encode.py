@@ -96,4 +96,4 @@ if __name__ == "__main__":
         algorithm = "shamir"
     elif algorithm not in ["shamir", "replicated"]:
         exit(f"unknown algorithm: '{algorithm}'")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8642)

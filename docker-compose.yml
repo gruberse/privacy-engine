@@ -6,8 +6,8 @@ services:
     ports:
       - "127.0.0.1:80:8000"
     environment:
-      - PEERS={"A":"http://192.168.0.1:8000","B":"http://192.168.0.2:8000","C":"http://192.168.0.3:8000"}
-      - ENCODER=http://192.168.0.9:8000
+      - PEERS={"A":"http://192.168.0.1:8420","B":"http://192.168.0.2:8421","C":"http://192.168.0.3:8422"}
+      - ENCODER=http://192.168.0.9:8642
     networks:
       mpc_net:
         ipv4_address: 192.168.0.11
@@ -21,7 +21,7 @@ services:
       - ALGORITHM=${ALGO}
     expose:
       - "5000"
-      - "8000"
+      - "8420"
     networks:
       mpc_net:
         ipv4_address: 192.168.0.1
@@ -37,7 +37,7 @@ services:
       - ALGORITHM=${ALGO}
     expose:
       - "5001"
-      - "8000"
+      - "8421"
     networks:
       mpc_net:
         ipv4_address: 192.168.0.2
@@ -53,7 +53,7 @@ services:
       - ALGORITHM=${ALGO}
     expose:
       - "5002"
-      - "8000"
+      - "8422"
     networks:
       mpc_net:
         ipv4_address: 192.168.0.3
@@ -66,9 +66,7 @@ services:
     environment:
       - ALGORITHM=${ALGO}
     expose:
-      - "8000"
-    ports:
-      - "127.0.0.1:8081:8000"
+      - "8642"
     networks:
       mpc_net:
         ipv4_address: 192.168.0.9

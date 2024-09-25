@@ -139,4 +139,4 @@ if __name__ == "__main__":
     mkdir("/Programs/Public-Input")
     with open(f"Parties", 'w') as f:
         f.write("\n".join(s for s in settings.parties))
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=(8420 + settings.id))
