@@ -15,7 +15,7 @@ RUN tar xvfz v$v.tar.gz
 
 WORKDIR MP-SPDZ-$v
 
-# RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
+RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
 RUN echo "USE_NTL = 0" >> CONFIG.mine
 
 RUN make shamir-party.x replicated-field-party.x
@@ -24,11 +24,15 @@ COPY fitness_clear.mpc Programs/Source
 COPY population_order.mpc Programs/Source
 COPY classification.mpc Programs/Source
 COPY lap_solver.mpc Programs/Source
+COPY buckets.mpc Programs/Source
+COPY quantiles.mpc Programs/Source
 
 RUN python3 compile.py -F 64 fitness_clear
 RUN python3 compile.py -F 64 population_order
 RUN python3 compile.py -F 64 classification
 RUN python3 compile.py -F 64 lap_solver
+RUN python3 compile.py -F 64 buckets
+RUN python3 compile.py -F 64 quantiles
 
 RUN Scripts/setup-ssl.sh 3
 
@@ -63,6 +67,10 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/classification-*.bc /Programs/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/classification.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/lap_solver-*.bc /Programs/Bytecode/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/lap_solver.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/buckets-*.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/buckets.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/quantiles-*.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/quantiles.sch /Programs/Schedules/
 
 COPY --from=builder /dist /
 

@@ -51,6 +51,11 @@ class ClassificationResponse(BaseModel):
     indices: List[int] = Field(title="Indices of configurations exceeding the threshold")
 
 
+class BucketQuantileResponse(BaseModel):
+    maximum: int = Field(title="The highest fitness value")
+    mapping: List[int] = Field(title="List associating the index of each input configuration to a bucket/quantile")
+
+
 class ClearingRequest(BaseModel):
     data: List[int] = Field(title="A configuration", example=[1, 0])
 
@@ -109,8 +114,8 @@ async def create_session_clear(response: Response, request: PlainTextSetup):
     if all(r.status_code == 201 for r in ret):
         return
     else:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return Error(code=500, message="Could not query MPC ports")
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return Error(code=503, message="Could not query MPC ports")
 
 
 @app.get("/nodes", tags=["info"])
@@ -118,7 +123,7 @@ async def get_nodes():
     return list(settings.peers.values())
 
 
-@app.get("/status", responses={503: {"model": Error}}, tags=["info"])
+@app.get("/status", responses={500: {"model": Error}, 503: {"model": Error}}, tags=["info"])
 async def get_status(response: Response):
     ret = []
     for k, url in settings.peers.items():
@@ -135,7 +140,7 @@ async def get_status(response: Response):
 @app.put("/sessionSecret", status_code=status.HTTP_201_CREATED,
          summary="Create a new session with secret-shared data",
          tags=["secret-shared"],
-         responses={400: {"model": Error}, 503: {"model": Error}})
+         responses={400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
 async def create_session_secret(response: Response, request: SecretSharedSetup):
     """
     Create a new session using secret-shared weight-maps (one for each MPC node)
@@ -165,7 +170,7 @@ async def create_session_secret(response: Response, request: SecretSharedSetup):
 @app.put("/computeFitnessClear",
          summary="Compute and output a fitness value",
          tags=["test-only"],
-         responses={200: {"model": List[int]}, 400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
+         responses={200: {"model": List[int]}, 400: {"model": Error}, 500: {"model": Error}})
 async def compute_fitness_clear(
         response: Response,
         data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
@@ -200,7 +205,7 @@ async def compute_fitness_clear(
          summary="Compute a population order",
          tags=["secret-shared"],
          responses={200: {"model": MaxOrderedResponse},
-                    400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
+                    400: {"model": Error}, 500: {"model": Error}})
 async def compute_population_order(
         response: Response,
         data: List[List[int]] = Body(example=[[1, 0], [0, 1]])):
@@ -236,7 +241,7 @@ async def compute_population_order(
          summary="Classify a population",
          tags=["secret-shared"],
          responses={200: {"model": ClassificationResponse},
-                    400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
+                    400: {"model": Error}, 500: {"model": Error}})
 async def compute_classification(
         response: Response,
         data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
@@ -263,6 +268,78 @@ async def compute_classification(
         indices = res.json()
         # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
         return ClassificationResponse(highest=-1, best=False, indices=indices)
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message=f"unexpected error: {res}")
+
+
+@app.put("/computeBuckets/{count}",
+         summary="",
+         tags=["secret-shared"],
+         responses={200: {"model": BucketQuantileResponse},
+                    400: {"model": Error}, 500: {"model": Error}})
+async def compute_buckets(
+        response: Response,
+        count: int,
+        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+    """
+    Return a list, associating each input configuration to a bucket
+    """
+    size = len(data)
+    if size == 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="no data")
+    length = len(data[0])
+    if not all([len(d) == length for d in data[1:]]):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="wrong data")
+    ret = []
+    for k, url in settings.peers.items():
+        ret.append(client.put(str(url) + "computeBuckets", json={'parameter': count, 'configurations': data}, timeout=30.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
+    res = ret[0]
+    if all(r.status_code == 200 for r in ret):
+        res = res.json()
+        return BucketQuantileResponse(maximum=res[0], mapping=res[1:])
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message=f"unexpected error: {res}")
+
+
+@app.put("/computeQuantiles/{count}",
+         summary="",
+         tags=["secret-shared"],
+         responses={200: {"model": BucketQuantileResponse},
+                    400: {"model": Error}, 500: {"model": Error}})
+async def compute_quantiles(
+        response: Response,
+        count: int,
+        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+    """
+    Return a list, associating each input configuration to a quantile
+    """
+    size = len(data)
+    if size == 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="no data")
+    length = len(data[0])
+    if not all([len(d) == length for d in data[1:]]):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="wrong data")
+    ret = []
+    for k, url in settings.peers.items():
+        ret.append(client.put(str(url) + "computeQuantiles", json={'parameter': count, 'configurations': data}, timeout=30.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        return Error(code=500, message="timeout on one of the MPC nodes")
+    res = ret[0]
+    if all(r.status_code == 200 for r in ret):
+        res = res.json()
+        return BucketQuantileResponse(maximum=res[0], mapping=res[1:])
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")

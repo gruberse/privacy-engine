@@ -1,3 +1,5 @@
+program.use_edabit(True)
+
 from Compiler.types import cint
 from Compiler.types import sint
 

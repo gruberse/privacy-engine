@@ -15,7 +15,7 @@ RUN tar xvfz v$v.tar.gz
 
 WORKDIR MP-SPDZ-$v
 
-# RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
+RUN echo "MOD = -DGFP_MOD_SZ=5" >> CONFIG.mine
 RUN echo "USE_NTL = 0" >> CONFIG.mine
 
 RUN make shamir-party.x replicated-field-party.x

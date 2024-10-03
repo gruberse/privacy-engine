@@ -20,6 +20,10 @@ class ComputeRequest(BaseModel):
     configurations: List[List[int]]
 
 
+class ParameterizedComputeRequest(ComputeRequest):
+    parameter: int
+
+
 class MatrixSetup(BaseModel):
     matrix: str
 
@@ -77,7 +81,7 @@ async def compute(response: Response, request: ComputeRequest):
 
 @app.put("/computePopulationOrder")
 async def compute2(response: Response, request: ComputeRequest):
-    with open(f"Programs/Public-Input/population_order", 'w') as file:
+    with open("Programs/Public-Input/population_order", 'w') as file:
         try:
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
@@ -100,7 +104,7 @@ async def compute2(response: Response, request: ComputeRequest):
 
 @app.put("/computeClassification")
 async def compute3(response: Response, request: ComputeRequest):
-    with open(f"Programs/Public-Input/classification", 'w') as file:
+    with open("Programs/Public-Input/classification", 'w') as file:
         try:
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
@@ -130,6 +134,53 @@ async def compute4(response: Response):
         res = literal_eval(file.read())
     remove(f"out-P{settings.id}-0")
     return [i for i, x in enumerate(res) if x]
+
+
+@app.put("/computeBuckets")
+async def compute5(response: Response, request: ParameterizedComputeRequest):
+    with open("Programs/Public-Input/buckets", 'w') as file:
+        try:
+            file.write(f"{request.parameter}\n")
+            for conf in request.configurations:
+                file.write("\n".join(str(i) for i in conf))
+                file.write("\n")
+        except OSError as e:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return e.errno
+    try:
+        run(call_mpspdz("buckets"), check=True, env=new_env)
+    except CalledProcessError as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return e.returncode
+    with open(f"out-P{settings.id}-0") as file:
+        max_value = int(file.readline())
+        res = literal_eval(file.read())
+    remove(f"out-P{settings.id}-0")
+    return [max_value] + res
+
+
+@app.put("/computeQuantiles")
+async def compute6(response: Response, request: ParameterizedComputeRequest):
+    with open("Programs/Public-Input/quantiles", 'w') as file:
+        try:
+            file.write(f"{request.parameter}\n")
+            for conf in request.configurations:
+                file.write("\n".join(str(i) for i in conf))
+                file.write("\n")
+        except OSError as e:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return e.errno
+    try:
+        run(call_mpspdz("quantiles"), check=True, env=new_env)
+    except CalledProcessError as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return e.returncode
+    with open(f"out-P{settings.id}-0") as file:
+        max_value = int(file.readline())
+        res = literal_eval(file.read())
+    remove(f"out-P{settings.id}-0")
+    return [max_value] + res
+
 
 if __name__ == "__main__":
     if settings.algorithm == "":

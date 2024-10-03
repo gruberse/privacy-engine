@@ -71,3 +71,31 @@ r5 = requests.put("http://127.0.0.1:80/computeExact", json=configs)
 t2 = time.time()
 print(r5)
 print(f"time: {t2 - t1:.2f}s")
+
+print("\tCompute 5 Buckets")
+t1 = time.time()
+r6 = requests.put("http://127.0.0.1:80/computeBuckets/5", json=configs)
+t2 = time.time()
+print(r6)
+print(f"time: {t2 - t1:.2f}s")
+res6 = [((r - mi) * 5) // (span + 1) for r in res2]
+if r6.json() == {'maximum': ma, 'mapping': res6}:
+    print("OK")
+else:
+    print(res6)
+    print(r6.json())
+
+print("\tCompute 5 Quantiles")
+t1 = time.time()
+r7 = requests.put("http://127.0.0.1:80/computeQuantiles/5", json=configs)
+t2 = time.time()
+print(r7)
+print(f"time: {t2 - t1:.2f}s")
+res7 = [(x, (i*5) // M) for i, x in enumerate(res3)]
+res7.sort(key=(lambda x: x[0]))
+res7 = [x[1] for x in res7]
+if r7.json() == {'maximum': ma, 'mapping': res7}:
+    print("OK")
+else:
+    print(res7)
+    print(r7.json())
