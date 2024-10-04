@@ -1,0 +1,39 @@
+program.use_edabit(True)
+
+from Compiler.sorting import radix_sort
+from Compiler.types import sint
+
+N = 100
+M = 500
+
+mat = sint.Matrix(N, N)
+mat.read_from_file(0)
+res = sint.Array(M)
+quantiles = public_input()
+
+@for_range_opt(M)
+def _(i):
+    sum = sint(0)
+    @foreach_enumerate([0] * N)
+    def _(j, k):
+        sum.update(sum + mat[j][k])
+    res[i] = sum
+
+maximum = tree_reduce(lambda x, y: x.max(y), res)
+
+ind = sint.Array(M)
+@for_range_opt(M)
+def _(i):
+    ind[i] = sint(i)
+
+radix_sort(res, ind)
+
+qs = sint.Array(M)
+@for_range_opt(M)
+def _(i):
+    qs[i] = sint((i * quantiles) // M)
+
+radix_sort(ind, qs)
+
+print_ln('%s', maximum.reveal())
+qs.print_reveal_nested()
