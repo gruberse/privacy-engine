@@ -4,7 +4,7 @@ services:
       context: "./app"
     image: git-service.ait.ac.at:8010/sct-slotmachine-public/harmonic-public/pe-controller
     ports:
-      - "127.0.0.1:80:8000"
+      - "80:8000"
     environment:
       - PEERS={"A":"http://mpc1:8420","B":"http://mpc2:8421","C":"http://mpc3:8422"}
       - ENCODER=http://enc:8642
@@ -55,3 +55,5 @@ services:
       - ALGORITHM=${ALGO}
     expose:
       - "8642"
+    ports:
+      - "88:8642"

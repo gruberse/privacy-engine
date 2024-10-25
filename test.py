@@ -1,3 +1,4 @@
+import json
 import random
 import requests
 import time
@@ -6,7 +7,9 @@ N = 100
 M = 500
 
 weights = [[random.randint(0, 128) for _ in range(N)] for _ in range(N)]
+mapping = {f"Airline {n}": [n] for n in range(M)}
 configs = []
+decoder = json.JSONDecoder()
 
 for _ in range(M):
     config = list(range(N))
@@ -16,8 +19,17 @@ for _ in range(M):
 print("\tGet Status")
 print(requests.get("http://127.0.0.1:80/status"))
 
-print("\tPut Session")
-r1 = requests.put("http://127.0.0.1:80/sessionClear", json={'weights': weights, 'mapping': {}})
+# print("\tPut Session")
+# r1 = requests.put("http://127.0.0.1:80/sessionClear", json={'weights': weights, 'mapping': {}})
+# print(r1)
+
+print("\tEncode Weights")
+r0 = requests.put("http://127.0.0.1:88/", json=weights)
+print(r0)
+encoded = decoder.decode(r0.content.decode())
+
+print("\tInstall Encoded Weights")
+r1 = requests.put("http://127.0.0.1:80/sessionSecret", json={'mapping': mapping, 'weights': encoded})
 print(r1)
 
 print("\tCompute Fitness Clear")
