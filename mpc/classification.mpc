@@ -30,3 +30,4 @@ def _(i):
     geqs[i] = res[i].greater_equal(thresh)
 
 geqs.print_reveal_nested()
+print_ln('%s', ma.reveal())

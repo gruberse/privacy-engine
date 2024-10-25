@@ -118,9 +118,11 @@ async def compute3(response: Response, request: ComputeRequest):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
-        res = literal_eval(file.read())
+        lines = file.read().splitlines()
+        indices = literal_eval(lines[0])
+        max_value = literal_eval(lines[1])
     remove(f"out-P{settings.id}-0")
-    return [i for i, x in enumerate(res) if x]
+    return [max_value] + [i for i, x in enumerate(indices) if x]
 
 
 @app.put("/computeExact")

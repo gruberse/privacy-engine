@@ -267,7 +267,7 @@ async def compute_classification(
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
         # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
-        return ClassificationResponse(highest=-1, best=False, indices=indices)
+        return ClassificationResponse(highest=indices[0], best=False, indices=indices[1:])
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")

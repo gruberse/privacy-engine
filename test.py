@@ -71,7 +71,7 @@ mi = min(res2)
 span = ma - mi
 thresh = ma - (span // 4)
 res4 = [i for i, x in enumerate(res2) if x >= thresh]
-if r4.json() == {'highest': -1, 'best': False, 'indices': res4}:
+if r4.json() == {'highest': max(res2), 'best': False, 'indices': res4}:
     print("OK")
 else:
     print(res4)
