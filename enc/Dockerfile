@@ -5,7 +5,7 @@ RUN apt upgrade -y
 
 FROM base AS builder
 
-ARG v=0.3.9
+ARG v=0.4.0
 
 RUN apt install -y wget clang libsodium-dev python3-pip libgmp-dev libssl-dev libboost1.83-dev libboost-iostreams1.83-dev libboost-filesystem1.83-dev
 
@@ -40,7 +40,7 @@ RUN pyinstaller encode.py
 
 FROM base
 
-ARG v=0.3.9
+ARG v=0.4.0
 
 RUN apt install -y libgmp10 libsodium23 libboost-filesystem1.83.0 libboost-iostreams1.83.0 libboost-system1.83.0 libgmpxx4ldbl
 
