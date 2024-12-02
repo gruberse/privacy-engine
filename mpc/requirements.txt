@@ -12,40 +12,40 @@ anyio==4.6.2.post1
     # via starlette
 click==8.1.7
     # via uvicorn
-fastapi==0.115.3
+fastapi==0.115.5
     # via -r requirements.in
 h11==0.14.0
     # via uvicorn
 idna==3.10
     # via anyio
-packaging==24.1
+packaging==24.2
     # via
     #   pyinstaller
     #   pyinstaller-hooks-contrib
-pydantic==2.9.2
+pydantic==2.10.2
     # via
     #   fastapi
     #   pydantic-settings
-pydantic-core==2.23.4
+pydantic-core==2.27.1
     # via pydantic
-pydantic-settings==2.6.0
+pydantic-settings==2.6.1
     # via -r requirements.in
-pyinstaller==6.11.0
+pyinstaller==6.11.1
     # via -r requirements.in
-pyinstaller-hooks-contrib==2024.9
+pyinstaller-hooks-contrib==2024.10
     # via pyinstaller
 python-dotenv==1.0.1
     # via pydantic-settings
 sniffio==1.3.1
     # via anyio
-starlette==0.41.0
+starlette==0.41.3
     # via fastapi
 typing-extensions==4.12.2
     # via
     #   fastapi
     #   pydantic
     #   pydantic-core
-uvicorn==0.32.0
+uvicorn==0.32.1
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
