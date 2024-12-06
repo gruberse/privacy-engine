@@ -62,6 +62,8 @@ async def create_session(response: Response, request: MatrixSetup):
 async def compute(response: Response, request: ComputeRequest):
     with open("Programs/Public-Input/fitness_clear", 'w') as file:
         try:
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -83,6 +85,8 @@ async def compute(response: Response, request: ComputeRequest):
 async def compute2(response: Response, request: ComputeRequest):
     with open("Programs/Public-Input/population_order", 'w') as file:
         try:
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -106,6 +110,8 @@ async def compute2(response: Response, request: ComputeRequest):
 async def compute3(response: Response, request: ComputeRequest):
     with open("Programs/Public-Input/classification", 'w') as file:
         try:
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -143,6 +149,8 @@ async def compute5(response: Response, request: ParameterizedComputeRequest):
     with open("Programs/Public-Input/buckets", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -166,6 +174,8 @@ async def compute6(response: Response, request: ParameterizedComputeRequest):
     with open("Programs/Public-Input/quantiles", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")

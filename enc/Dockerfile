@@ -5,9 +5,9 @@ RUN apt upgrade -y
 
 FROM base AS builder
 
-ARG v=0.4.0
-
 RUN apt install -y wget clang libsodium-dev python3-pip libgmp-dev libssl-dev libboost1.83-dev libboost-iostreams1.83-dev libboost-filesystem1.83-dev
+
+ARG v
 
 RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
 
@@ -21,6 +21,9 @@ RUN echo "USE_NTL = 0" >> CONFIG.mine
 RUN make shamir-party.x replicated-field-party.x
 
 COPY encode.mpc Programs/Source
+
+ARG n
+ENV n=$n
 
 RUN python3 compile.py -F 64 encode
 
@@ -40,9 +43,9 @@ RUN pyinstaller encode.py
 
 FROM base
 
-ARG v=0.4.0
-
 RUN apt install -y libgmp10 libsodium23 libboost-filesystem1.83.0 libboost-iostreams1.83.0 libboost-system1.83.0 libgmpxx4ldbl
+
+ARG v
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
@@ -57,5 +60,8 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/encode.sch /Programs/Schedule
 RUN mkdir Programs/Public-Input
 
 COPY --from=builder /dist /
+
+ARG n
+ENV n=$n
 
 ENTRYPOINT /encode/encode

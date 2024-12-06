@@ -1,6 +1,7 @@
+import os
 from Compiler.types import sint
 
-N = 100
+N = int(os.getenv("n"))
 
 arr = sint.get_input_from(0, size=N*N)
 sint.write_to_file(arr)

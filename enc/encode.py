@@ -1,5 +1,8 @@
 import uvicorn
 from fastapi import Body, FastAPI, HTTPException, status
+from itertools import batched, chain, repeat, starmap
+from math import sqrt
+from operator import concat
 from os import getenv, remove
 from pydantic import BaseModel
 from starlette_prometheus import metrics, PrometheusMiddleware
@@ -11,6 +14,7 @@ app = FastAPI()
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", metrics)
 
+N = int(getenv("n"))
 
 class Weight(BaseModel):
     slotTime: str
@@ -32,6 +36,15 @@ class EncodedWeightMap(BaseModel):
 
 
 def split(data: List[int]):
+    size = sqrt(len(data))
+    if not size.is_integer():
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="input matrix is not square")
+    size = int(size)
+    if size > N:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"input matrix is bigger than preconfigured maximum of {N}")
+    if size < N:
+        data = list(chain.from_iterable(starmap(concat, zip(batched(data, size), repeat(tuple([0] * (N - size)), size)))))
+        data += [0] * (N * (N - size))
     with open("Player-Data/Input-P0-0", 'w') as file:
         file.write("\n".join(map(str, data)))
     try:

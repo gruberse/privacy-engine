@@ -5,9 +5,9 @@ RUN apt upgrade -y
 
 FROM base AS builder
 
-ARG v=0.4.0
-
 RUN apt install -y wget clang libsodium-dev python3-pip libgmp-dev libssl-dev libboost1.83-dev libboost-iostreams1.83-dev libboost-filesystem1.83-dev
+
+ARG v
 
 RUN wget https://github.com/data61/MP-SPDZ/archive/refs/tags/v$v.tar.gz
 
@@ -26,6 +26,11 @@ COPY classification.mpc Programs/Source
 COPY lap_solver.mpc Programs/Source
 COPY buckets.mpc Programs/Source
 COPY quantiles.mpc Programs/Source
+
+ARG n
+ARG m
+ENV n=$n
+ENV m=$m
 
 RUN python3 compile.py -F 64 fitness_clear
 RUN python3 compile.py -F 64 population_order
@@ -50,9 +55,9 @@ RUN pyinstaller mpc_node.py
 
 FROM base
 
-ARG v=0.4.0
-
 RUN apt install -y libgmp10 libsodium23 libboost-filesystem1.83.0 libboost-iostreams1.83.0 libboost-system1.83.0 libgmpxx4ldbl
+
+ARG v
 
 COPY --from=builder /MP-SPDZ-$v/libSPDZ.so /
 COPY --from=builder /MP-SPDZ-$v/shamir-party.x /
