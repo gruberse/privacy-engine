@@ -8,17 +8,17 @@ altgraph==0.17.4
     # via pyinstaller
 annotated-types==0.7.0
     # via pydantic
-anyio==4.6.2.post1
+anyio==4.7.0
     # via
     #   httpx
     #   starlette
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   httpcore
     #   httpx
 click==8.1.7
     # via uvicorn
-fastapi==0.115.5
+fastapi==0.115.6
     # via -r requirements.in
 h11==0.14.0
     # via
@@ -26,7 +26,7 @@ h11==0.14.0
     #   uvicorn
 httpcore==1.0.7
     # via httpx
-httpx==0.28.0
+httpx==0.28.1
     # via -r requirements.in
 idna==3.10
     # via
@@ -36,15 +36,15 @@ packaging==24.2
     # via
     #   pyinstaller
     #   pyinstaller-hooks-contrib
-prometheus-client==0.21.0
+prometheus-client==0.21.1
     # via starlette-prometheus
-pydantic==2.10.2
+pydantic==2.10.3
     # via
     #   fastapi
     #   pydantic-settings
 pydantic-core==2.27.1
     # via pydantic
-pydantic-settings==2.6.1
+pydantic-settings==2.7.0
     # via -r requirements.in
 pyinstaller==6.11.1
     # via -r requirements.in
@@ -62,10 +62,11 @@ starlette-prometheus==0.10.0
     # via -r requirements.in
 typing-extensions==4.12.2
     # via
+    #   anyio
     #   fastapi
     #   pydantic
     #   pydantic-core
-uvicorn==0.32.1
+uvicorn==0.34.0
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
