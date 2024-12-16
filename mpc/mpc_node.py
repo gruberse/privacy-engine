@@ -107,9 +107,10 @@ async def compute2(response: Response, request: ComputeRequest):
 
 
 @app.put("/computeClassification")
-async def compute3(response: Response, request: ComputeRequest):
+async def compute3(response: Response, request: ParameterizedComputeRequest):
     with open("Programs/Public-Input/classification", 'w') as file:
         try:
+            file.write(f"{request.parameter}\n")
             file.write(f"{len(request.configurations[0])}\n")
             file.write(f"{len(request.configurations)}\n")
             for conf in request.configurations:

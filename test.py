@@ -62,7 +62,7 @@ else:
 
 print("\tCompute Classification")
 t1 = time.time()
-r4 = requests.put("http://127.0.0.1:80/computeClassification", json=configs)
+r4 = requests.put("http://127.0.0.1:80/computeClassification/75", json=configs)
 t2 = time.time()
 print(r4)
 print(f"time: {t2 - t1:.2f}s")

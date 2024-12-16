@@ -237,13 +237,14 @@ async def compute_population_order(
         return Error(code=500, message=f"unexpected error: {res}")
 
 
-@app.put("/computeClassification",
+@app.put("/computeClassification/{threshold}",
          summary="Classify a population",
          tags=["secret-shared"],
          responses={200: {"model": ClassificationResponse},
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_classification(
         response: Response,
+        threshold: int,
         data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
     """
     Return an unordered list of configurations that exceed a desired threshold
@@ -258,7 +259,7 @@ async def compute_classification(
         return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computeClassification", json={'configurations': data}, timeout=30.0))
+        ret.append(client.put(str(url) + "computeClassification", json={'parameter': threshold,'configurations': data}, timeout=30.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:

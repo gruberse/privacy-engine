@@ -10,7 +10,7 @@ MAX_M = int(os.getenv("m"))
 mat = sint.Matrix(MAX_N, MAX_N)
 mat.read_from_file(0)
 res = sint.Array(MAX_M)
-
+threshold = public_input()
 N = public_input()
 M = public_input()
 
@@ -25,7 +25,7 @@ def _(i):
 mi = tree_reduce(lambda x, y: x.min(y), res)
 ma = tree_reduce(lambda x, y: x.max(y), res)
 span = ma - mi
-thresh = ma - span.right_shift(2)
+thresh = mi + (span * threshold).int_div(100)
 
 geqs = sint.Array(MAX_M)
 
