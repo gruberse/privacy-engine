@@ -26,6 +26,7 @@ COPY classification.mpc Programs/Source
 COPY lap_solver.mpc Programs/Source
 COPY buckets.mpc Programs/Source
 COPY quantiles.mpc Programs/Source
+COPY top_individuals.mpc Programs/Source
 
 ARG n
 ARG m
@@ -38,6 +39,7 @@ RUN python3 compile.py -F 64 classification
 RUN python3 compile.py -F 64 lap_solver
 RUN python3 compile.py -F 64 buckets
 RUN python3 compile.py -F 64 quantiles
+RUN python3 compile.py -F 64 top_individuals
 
 RUN Scripts/setup-ssl.sh 3
 
@@ -76,6 +78,8 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/buckets-*.bc /Programs/Bytecod
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/buckets.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/quantiles-*.bc /Programs/Bytecode/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/quantiles.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/top_individuals-*.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/top_individuals.sch /Programs/Schedules/
 
 COPY --from=builder /dist /
 

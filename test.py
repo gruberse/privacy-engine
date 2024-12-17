@@ -111,3 +111,16 @@ if r7.json() == {'maximum': ma, 'mapping': res7}:
 else:
     print(res7)
     print(r7.json())
+
+print("\tCompute 10 Top Individuals")
+t1 = time.time()
+r8 = requests.put("http://127.0.0.1:80/computeTopIndividuals/10", json=configs)
+t2 = time.time()
+print(r8)
+print(f"time: {t2 - t1:.2f}s")
+res8 = sorted(res3[:10])
+if r8.json() == {'highest': max(res2), 'best': False, 'indices': res8}:
+    print("OK")
+else:
+    print(res8)
+    print(r8.json())

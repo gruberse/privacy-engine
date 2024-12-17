@@ -195,6 +195,31 @@ async def compute6(response: Response, request: ParameterizedComputeRequest):
     return [max_value] + res
 
 
+@app.put("/computeTopIndividuals")
+async def compute7(response: Response, request: ParameterizedComputeRequest):
+    with open("Programs/Public-Input/top_individuals", 'w') as file:
+        try:
+            file.write(f"{request.parameter}\n")
+            file.write(f"{len(request.configurations[0])}\n")
+            file.write(f"{len(request.configurations)}\n")
+            for conf in request.configurations:
+                file.write("\n".join(str(i) for i in conf))
+                file.write("\n")
+        except OSError as e:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return e.errno
+    try:
+        run(call_mpspdz("top_individuals"), check=True, env=new_env)
+    except CalledProcessError as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return e.returncode
+    with open(f"out-P{settings.id}-0") as file:
+        max_value = int(file.readline())
+        res = literal_eval(file.read())
+    remove(f"out-P{settings.id}-0")
+    return [max_value] + res
+
+
 if __name__ == "__main__":
     if settings.algorithm == "":
         settings.algorithm = "replicated"

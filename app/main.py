@@ -346,25 +346,39 @@ async def compute_quantiles(
         return Error(code=500, message=f"unexpected error: {res}")
 
 
-@app.put("/computeExact",
-         summary="Compute an exact solution",
+@app.put("/computeTopIndividuals/{count}",
+         summary="",
          tags=["secret-shared"],
-         responses={200: {"model": List[Tuple[int, int]]},
-                    400: {"model": Error}, 500: {"model": Error}, 503: {"model": Error}})
-async def compute_exact(response: Response):
+         responses={200: {"model": ClassificationResponse},
+                    400: {"model": Error}, 500: {"model": Error}})
+async def compute_top_individuals(
+        response: Response,
+        count: int,
+        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
     """
-    Return an unordered list of configurations that exceed a desired threshold
+    Return a lexically sorted list of top configurations
     """
+    size = len(data)
+    if size == 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="no data")
+    length = len(data[0])
+    if not all([len(d) == length for d in data[1:]]):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computeExact", timeout=300.0))
+        ret.append(client.put(str(url) + "computeTopIndividuals", json={'parameter': count, 'configurations': data},
+                              timeout=30.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
-        return res.json()
+        indices = res.json()
+        # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
+        return ClassificationResponse(highest=indices[0], best=False, indices=sorted([i for i in indices[1:] if i != 0]))
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")
