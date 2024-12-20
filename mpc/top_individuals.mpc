@@ -31,7 +31,7 @@ radix_sort(res, ind)
 top = sint.Array(MAX_M)
 @for_range_opt(cnt)
 def _(i):
-    top[i] = ind[i]
+    top[i] = ind[i + (MAX_M - M)]
 
 top.secure_shuffle()
 print_ln('%s', tree_reduce(lambda x, y: x.max(y), res).reveal())

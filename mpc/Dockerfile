@@ -83,6 +83,11 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/top_individuals.sch /Programs
 
 COPY --from=builder /dist /
 
+ARG n
+ARG m
+ENV n=$n
+ENV m=$m
+
 # RUN apt install -y iproute2
 # ENTRYPOINT tc qdisc add dev eth0 root netem delay 0ms && /mpc_node/mpc_node
 

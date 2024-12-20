@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     id: int
     parties: List[str]
     algorithm: str = "replicated"
+    n: int
+    m: int
 
 
 class ComputeRequest(BaseModel):
@@ -76,7 +78,7 @@ async def compute(response: Response, request: ComputeRequest):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
-        res = literal_eval(file.read())
+        res = literal_eval(file.read())[:len(request.configurations)]
     remove(f"out-P{settings.id}-0")
     return res
 
@@ -100,7 +102,7 @@ async def compute2(response: Response, request: ComputeRequest):
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         lines = file.read().splitlines()
-        indices = literal_eval(lines[0])
+        indices = literal_eval(lines[0])[settings.m - len(request.configurations):]
         max_value = literal_eval(lines[1])
     remove(f"out-P{settings.id}-0")
     return [max_value] + indices
@@ -165,7 +167,7 @@ async def compute5(response: Response, request: ParameterizedComputeRequest):
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         max_value = int(file.readline())
-        res = literal_eval(file.read())
+        res = literal_eval(file.read())[:len(request.configurations)]
     remove(f"out-P{settings.id}-0")
     return [max_value] + res
 
@@ -190,7 +192,7 @@ async def compute6(response: Response, request: ParameterizedComputeRequest):
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         max_value = int(file.readline())
-        res = literal_eval(file.read())
+        res = literal_eval(file.read())[settings.m - len(request.configurations):]
     remove(f"out-P{settings.id}-0")
     return [max_value] + res
 

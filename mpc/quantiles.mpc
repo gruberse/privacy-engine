@@ -25,16 +25,22 @@ def _(i):
 maximum = tree_reduce(lambda x, y: x.max(y), res)
 
 ind = sint.Array(MAX_M)
-@for_range_opt(MAX_M)
+@for_range_opt(M)
 def _(i):
     ind[i] = sint(i)
+@for_range_opt(MAX_M - M)
+def _(i):
+    ind[i + M] = sint(-1)
 
 radix_sort(res, ind)
 
 qs = sint.Array(MAX_M)
-@for_range_opt(MAX_M)
+@for_range_opt(MAX_M - M)
 def _(i):
-    qs[i] = sint((i * quantiles) // M)
+    qs[i] = sint(-1)
+@for_range_opt(M)
+def _(i):
+    qs[i + (MAX_M - M)] = sint((i * quantiles) // M)
 
 radix_sort(ind, qs)
 

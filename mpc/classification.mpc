@@ -22,8 +22,14 @@ def _(i):
         sum.update(sum + mat[j][public_input()])
     res[i] = sum
 
-mi = tree_reduce(lambda x, y: x.min(y), res)
 ma = tree_reduce(lambda x, y: x.max(y), res)
+@for_range_opt(MAX_M - M)
+def _(i):
+    res[i + M] = ma + 1
+mi = tree_reduce(lambda x, y: x.min(y), res)
+@for_range_opt(MAX_M - M)
+def _(i):
+    res[i + M] = sint(0)
 span = ma - mi
 thresh = mi + (span * threshold).int_div(100)
 
