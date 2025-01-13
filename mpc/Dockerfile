@@ -41,6 +41,7 @@ RUN python3 compile.py -F 64 buckets
 RUN python3 compile.py -F 64 quantiles
 RUN python3 compile.py -F 64 top_individuals
 
+RUN sed -i '14s/$/ -days 365/' Scripts/setup-ssl.sh
 RUN Scripts/setup-ssl.sh 3
 
 WORKDIR /
