@@ -25,7 +25,7 @@ def _(i):
 ind = sint.Array(MAX_M)
 @for_range_opt(MAX_M)
 def _(i):
-    ind[i] = sint(i)
+    ind[i] = sint(i+1)
 
 radix_sort(res, ind)
 top = sint.Array(MAX_M)

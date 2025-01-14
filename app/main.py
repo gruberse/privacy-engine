@@ -378,7 +378,7 @@ async def compute_top_individuals(
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
         # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
-        return ClassificationResponse(highest=indices[0], best=False, indices=sorted([i for i in indices[1:] if i != 0]))
+        return ClassificationResponse(highest=indices[0], best=False, indices=sorted([i-1 for i in indices[1:] if i != 0]))
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")
