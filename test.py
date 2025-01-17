@@ -118,7 +118,7 @@ r8 = requests.put("http://127.0.0.1:80/computeTopIndividuals/10", json=configs)
 t2 = time.time()
 print(r8)
 print(f"time: {t2 - t1:.2f}s")
-res8 = sorted(res3[:10])
+res8 = sorted(res3[-10:])
 if r8.json() == {'highest': max(res2), 'best': False, 'indices': res8}:
     print("OK")
 else:
