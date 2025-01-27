@@ -12,7 +12,7 @@ anyio==4.8.0
     # via starlette
 click==8.1.8
     # via uvicorn
-fastapi==0.115.6
+fastapi==0.115.7
     # via -r requirements.in
 h11==0.14.0
     # via uvicorn
@@ -24,17 +24,17 @@ packaging==24.2
     #   pyinstaller-hooks-contrib
 prometheus-client==0.21.1
     # via starlette-prometheus
-pydantic==2.10.5
+pydantic==2.10.6
     # via fastapi
 pydantic-core==2.27.2
     # via pydantic
 pyinstaller==6.11.1
     # via -r requirements.in
-pyinstaller-hooks-contrib==2024.11
+pyinstaller-hooks-contrib==2025.0
     # via pyinstaller
 sniffio==1.3.1
     # via anyio
-starlette==0.41.3
+starlette==0.45.3
     # via
     #   fastapi
     #   starlette-prometheus
