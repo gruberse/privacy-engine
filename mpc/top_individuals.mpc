@@ -22,6 +22,10 @@ def _(i):
         sum.update(sum + mat[j][public_input()])
     res[i] = sum
 
+@for_range_opt(MAX_M - M)
+def _(i):
+    res[M + i] = -4194304
+
 ind = sint.Array(MAX_M)
 @for_range_opt(MAX_M)
 def _(i):
