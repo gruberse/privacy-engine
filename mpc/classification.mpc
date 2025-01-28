@@ -24,15 +24,15 @@ def _(i):
 
 @for_range_opt(MAX_M - M)
 def _(i):
-    res[i + M] = sint(-4194304)
+    res[i + M] = sint(-1099511627776)
 ma = tree_reduce(lambda x, y: x.max(y), res)
 @for_range_opt(MAX_M - M)
 def _(i):
-    res[i + M] = sint(4194304)
+    res[i + M] = sint(1099511627776)
 mi = tree_reduce(lambda x, y: x.min(y), res)
 @for_range_opt(MAX_M - M)
 def _(i):
-    res[i + M] = sint(-4194304)
+    res[i + M] = sint(-1099511627776)
 span = ma - mi
 thresh = mi + (span * threshold).int_div(100)
 

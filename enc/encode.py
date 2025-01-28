@@ -1,10 +1,6 @@
 import uvicorn
 from fastapi import Body, FastAPI, HTTPException, status
-from itertools import batched, chain, repeat, starmap
-from math import sqrt
-from operator import concat
 from os import getenv, remove
-from pydantic import BaseModel
 from starlette_prometheus import metrics, PrometheusMiddleware
 from subprocess import CalledProcessError, run
 from sys import exit
@@ -16,37 +12,21 @@ app.add_route("/metrics", metrics)
 
 N = int(getenv("n"))
 
-class Weight(BaseModel):
-    slotTime: str
-    weight: str
 
-
-class WeightObject(BaseModel):
-    weightMap: List[Weight]
-
-
-class WeightMap(BaseModel):
-    flightId: str
-    weightMap: List[Weight]
-
-
-class EncodedWeightMap(BaseModel):
-    flightId: str
-    encodedWeights: List[WeightObject]
-
-
-def split(data: List[int]):
-    size = sqrt(len(data))
-    if not size.is_integer():
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="input matrix is not square")
-    size = int(size)
-    if size > N:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"input matrix is bigger than preconfigured maximum of {N}")
-    if size < N:
-        data = list(chain.from_iterable(starmap(concat, zip(batched(data, size), repeat(tuple([0] * (N - size)), size)))))
-        data += [0] * (N * (N - size))
+def split(data: List[List[int]]):
+    width = len(data[0])
+    if any([len(r) != width for r in data]):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="input matrix is not rectangular")
+    if len(data) > N or width > N:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"input matrix is bigger than preconfigured maximum of {N}x{N}")
     with open("Player-Data/Input-P0-0", 'w') as file:
-        file.write("\n".join(map(str, data)))
+        for row in data:
+            row = [str(int(v)) for v in row]
+            file.write(" ".join(row + (["0"] * (N - width))))
+            file.write("\n")
+        for _ in range(N - len(data)):
+            file.write(" ".join(["0"] * N))
+            file.write("\n")
     try:
         if algorithm == "shamir":
             run(["Scripts/shamir.sh", "encode"], capture_output=True, check=True)
@@ -81,26 +61,7 @@ async def test(data: List[List[int]] = Body(default=[], example=[[2, 3], [4, 5]]
     #     for k, d in zip(keys, s):
     #         res[k].append(d)
     # return res
-    return {k: d for k, d in zip(["A", "B", "C"], split([d for r in data for d in r]))}
-
-
-@app.put("/encode", responses={200: {"model": EncodedWeightMap}})
-async def encode(data: WeightMap):
-    """
-    Secret-share a WeightMap
-    """
-    if all([d.weight.isdecimal() for d in data.weightMap]):
-        shared = split([int(d.weight) for d in data.weightMap])
-        weights = [[], [], []]
-        for w, w1, w2, w3 in zip(data.weightMap, shared[0], shared[1], shared[2]):
-            weights[0].append(Weight(slotTime=w.slotTime, weight=str(w1)))
-            weights[1].append(Weight(slotTime=w.slotTime, weight=str(w2)))
-            weights[2].append(Weight(slotTime=w.slotTime, weight=str(w3)))
-        weights = [WeightObject(weightMap=weights[0]), WeightObject(weightMap=weights[1]), WeightObject(weightMap=weights[2])]
-        res = EncodedWeightMap(flightId=data.flightId, encodedWeights=weights)
-        return res
-    else:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="not all weights are integer")
+    return {k: d for k, d in zip(["A", "B", "C"], split(data))}
 
 
 if __name__ == "__main__":

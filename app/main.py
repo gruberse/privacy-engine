@@ -71,12 +71,6 @@ settings = Settings()
 mapping: Mapping[str, List[int]] = {}
 
 
-def check_quadratic(data: List[List[int]]) -> bool:
-    length = len(data)
-    width = len(data[0])
-    return length == width and all([len(row) == width for row in data])
-
-
 @app.put("/sessionClear", status_code=status.HTTP_201_CREATED,
          summary="Create a new session with plain-text data",
          tags=["test-only"],
@@ -86,9 +80,6 @@ async def create_session_clear(response: Response, request: PlainTextSetup):
     Create a new session using a clear-text weight-map
     The weight-map is a rectangular matrix (list of lists)
     """
-    if not check_quadratic(request.weights):
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return Error(code=400, message="data of unequal size")
     flattened = [y for x in request.mapping.values() for y in x]
     if not sorted(flattened) == list(range(len(flattened))):
         response.status_code = status.HTTP_400_BAD_REQUEST
