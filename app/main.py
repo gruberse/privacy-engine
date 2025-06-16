@@ -258,6 +258,8 @@ async def compute_classification(
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
+        if len(indices) < 4:
+            return await compute_top_individuals(response, 3, data)
         # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
         return ClassificationResponse(highest=indices[0], best=False, indices=indices[1:])
     else:
