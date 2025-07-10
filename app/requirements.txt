@@ -12,13 +12,13 @@ anyio==4.9.0
     # via
     #   httpx
     #   starlette
-certifi==2025.6.15
+certifi==2025.7.9
     # via
     #   httpcore
     #   httpx
 click==8.2.1
     # via uvicorn
-fastapi==0.115.12
+fastapi==0.116.0
     # via -r requirements.in
 h11==0.16.0
     # via
@@ -44,13 +44,13 @@ pydantic==2.11.7
     #   pydantic-settings
 pydantic-core==2.33.2
     # via pydantic
-pydantic-settings==2.9.1
+pydantic-settings==2.10.1
     # via -r requirements.in
-pyinstaller==6.14.1
+pyinstaller==6.14.2
     # via -r requirements.in
 pyinstaller-hooks-contrib==2025.5
     # via pyinstaller
-python-dotenv==1.1.0
+python-dotenv==1.1.1
     # via pydantic-settings
 sniffio==1.3.1
     # via anyio
@@ -60,7 +60,7 @@ starlette==0.46.2
     #   starlette-prometheus
 starlette-prometheus==0.10.0
     # via -r requirements.in
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   anyio
     #   fastapi
@@ -71,7 +71,7 @@ typing-inspection==0.4.1
     # via
     #   pydantic
     #   pydantic-settings
-uvicorn==0.34.3
+uvicorn==0.35.0
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
