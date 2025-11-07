@@ -115,6 +115,8 @@ MP-SPDZ 0.4.1
 |        400 | 0.87s | 0.88s | 0.90s | 0.90s |   0.92s |
 |        500 | 0.98s | 1.03s | 1.03s | 1.04s |   1.05s |
 
+## Cannot replicate at the moment
+
 ### lap_solver (exact solution; average of 10 runs with random matrices)
 
 | latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
