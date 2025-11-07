@@ -101,6 +101,7 @@ async def create_session_clear(response: Response, request: PlainTextSetup):
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     if all(r.status_code == 201 for r in ret):
         return
@@ -122,9 +123,10 @@ async def get_status(response: Response):
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     if any(r.status_code != 200 for r in ret):
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return Error(code=503, message="MPC node unavailable")
 
 
@@ -152,6 +154,7 @@ async def create_session_secret(response: Response, request: SecretSharedSetup):
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     if any(r.status_code != 201 for r in ret):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -183,6 +186,7 @@ async def compute_fitness_clear(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
@@ -218,6 +222,7 @@ async def compute_population_order(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
@@ -254,6 +259,7 @@ async def compute_classification(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
@@ -293,6 +299,7 @@ async def compute_buckets(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
@@ -329,6 +336,7 @@ async def compute_quantiles(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
@@ -366,6 +374,7 @@ async def compute_top_individuals(
     try:
         ret = await gather(*ret)
     except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
     res = ret[0]
     if all(r.status_code == 200 for r in ret):

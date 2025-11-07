@@ -29,17 +29,47 @@ COPY quantiles.mpc Programs/Source
 COPY top_individuals.mpc Programs/Source
 
 ARG n
-ARG m
 ENV n=$n
-ENV m=$m
 
-RUN python3 compile.py -F 64 fitness_clear
-RUN python3 compile.py -F 64 population_order
-RUN python3 compile.py -F 64 classification
-RUN python3 compile.py -F 64 lap_solver
-RUN python3 compile.py -F 64 buckets
-RUN python3 compile.py -F 64 quantiles
-RUN python3 compile.py -F 64 top_individuals
+RUN python3 compile.py -Ol -F 64 fitness_clear 100
+RUN python3 compile.py -Ol -F 64 population_order 100
+RUN python3 compile.py -Ol -F 64 classification 100
+# RUN python3 compile.py -Ol -F 64 lap_solver 100
+RUN python3 compile.py -Ol -F 64 buckets 100
+RUN python3 compile.py -Ol -F 64 quantiles 100
+RUN python3 compile.py -Ol -F 64 top_individuals 100
+
+RUN python3 compile.py -Ol -F 64 fitness_clear 200
+RUN python3 compile.py -Ol -F 64 population_order 200
+RUN python3 compile.py -Ol -F 64 classification 200
+# RUN python3 compile.py -Ol -F 64 lap_solver 200
+RUN python3 compile.py -Ol -F 64 buckets 200
+RUN python3 compile.py -Ol -F 64 quantiles 200
+RUN python3 compile.py -Ol -F 64 top_individuals 200
+
+RUN python3 compile.py -Ol -F 64 fitness_clear 300
+RUN python3 compile.py -Ol -F 64 population_order 300
+RUN python3 compile.py -Ol -F 64 classification 300
+# RUN python3 compile.py -Ol -F 64 lap_solver 300
+RUN python3 compile.py -Ol -F 64 buckets 300
+RUN python3 compile.py -Ol -F 64 quantiles 300
+RUN python3 compile.py -Ol -F 64 top_individuals 300
+
+RUN python3 compile.py -Ol -F 64 fitness_clear 400
+RUN python3 compile.py -Ol -F 64 population_order 400
+RUN python3 compile.py -Ol -F 64 classification 400
+# RUN python3 compile.py -Ol -F 64 lap_solver 400
+RUN python3 compile.py -Ol -F 64 buckets 400
+RUN python3 compile.py -Ol -F 64 quantiles 400
+RUN python3 compile.py -Ol -F 64 top_individuals 400
+
+RUN python3 compile.py -Ol -F 64 fitness_clear 500
+RUN python3 compile.py -Ol -F 64 population_order 500
+RUN python3 compile.py -Ol -F 64 classification 500
+# RUN python3 compile.py -Ol -F 64 lap_solver 500
+RUN python3 compile.py -Ol -F 64 buckets 500
+RUN python3 compile.py -Ol -F 64 quantiles 500
+RUN python3 compile.py -Ol -F 64 top_individuals 500
 
 RUN sed -i '14s/$/ -days 365/' Scripts/setup-ssl.sh
 RUN Scripts/setup-ssl.sh 3
@@ -68,19 +98,19 @@ COPY --from=builder /MP-SPDZ-$v/replicated-field-party.x /
 COPY --from=builder /MP-SPDZ-$v/Player-Data /Player-Data
 
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/fitness_clear-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/fitness_clear.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/fitness_clear*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/population_order-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/population_order.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/population_order*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/classification-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/classification.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/classification*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/lap_solver-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/lap_solver.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/lap_solver*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/buckets-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/buckets.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/buckets*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/quantiles-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/quantiles.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/quantiles*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/top_individuals-*.bc /Programs/Bytecode/
-COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/top_individuals.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/top_individuals*.sch /Programs/Schedules/
 
 COPY --from=builder /dist /
 

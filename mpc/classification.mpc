@@ -1,11 +1,12 @@
 program.use_edabit(True)
 
 import os
+import sys
 from Compiler.types import sint
 from Compiler.types import sintbit
 
 MAX_N = int(os.getenv("n"))
-MAX_M = int(os.getenv("m"))
+MAX_M = int(sys.argv[-1])
 
 mat = sint.Matrix(MAX_N, MAX_N)
 mat.read_from_file(0)

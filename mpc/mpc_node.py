@@ -35,11 +35,24 @@ app = FastAPI(title="SlotMachine PrivacyEngine Controller")
 settings = Settings()
 
 
-def call_mpspdz(program: str):
+def determine_suffix(m: int):
+    if m < 101:
+        return 100
+    elif m < 201:
+        return 200
+    elif m < 301:
+        return 300
+    elif m < 401:
+        return 400
+    else:
+        return 500
+
+
+def call_mpspdz(program: str, batch: int):
     if settings.algorithm == "shamir":
-        return ["./shamir-party.x", str(settings.id), program, "-ip", "Parties", "-N", "3", "-OF", "out"]
+        return ["./shamir-party.x", str(settings.id), program, "-ip", "Parties", "-N", "3", "--batch-size", str(batch), "-OF", "out"]
     elif settings.algorithm == "replicated":
-        return ["./replicated-field-party.x", "-ip", "Parties", "-OF", "out", "-p", str(settings.id), program]
+        return ["./replicated-field-party.x", "-ip", "Parties", "--batch-size", str(batch), "-OF", "out", "-p", str(settings.id), program]
     else:
         exit(f"unknown algorithm: '{settings.algorithm}'")
 
@@ -62,10 +75,13 @@ async def create_session(response: Response, request: MatrixSetup):
 
 @app.put("/computeFitnessClear")
 async def compute(response: Response, request: ComputeRequest):
-    with open("Programs/Public-Input/fitness_clear", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/fitness_clear-{size}", 'w') as file:
         try:
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -73,22 +89,25 @@ async def compute(response: Response, request: ComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("fitness_clear"), check=True, env=new_env)
+        run(call_mpspdz(f"fitness_clear-{size}", m * 10), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
-        res = literal_eval(file.read())[:len(request.configurations)]
+        res = literal_eval(file.read())[:m]
     remove(f"out-P{settings.id}-0")
     return res
 
 
 @app.put("/computePopulationOrder")
 async def compute2(response: Response, request: ComputeRequest):
-    with open("Programs/Public-Input/population_order", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/population_order-{size}", 'w') as file:
         try:
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -96,13 +115,13 @@ async def compute2(response: Response, request: ComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("population_order"), check=True, env=new_env)
+        run(call_mpspdz(f"population_order-{size}", m * 2), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         lines = file.read().splitlines()
-        indices = literal_eval(lines[0])[settings.m - len(request.configurations):]
+        indices = literal_eval(lines[0])[size - m:]
         max_value = literal_eval(lines[1])
     remove(f"out-P{settings.id}-0")
     return [max_value] + indices
@@ -110,11 +129,14 @@ async def compute2(response: Response, request: ComputeRequest):
 
 @app.put("/computeClassification")
 async def compute3(response: Response, request: ParameterizedComputeRequest):
-    with open("Programs/Public-Input/classification", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/classification-{size}", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -122,7 +144,7 @@ async def compute3(response: Response, request: ParameterizedComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("classification"), check=True, env=new_env)
+        run(call_mpspdz(f"classification-{size}", m * 4), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
@@ -149,11 +171,14 @@ async def compute4(response: Response):
 
 @app.put("/computeBuckets")
 async def compute5(response: Response, request: ParameterizedComputeRequest):
-    with open("Programs/Public-Input/buckets", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/buckets-{size}", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -161,24 +186,27 @@ async def compute5(response: Response, request: ParameterizedComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("buckets"), check=True, env=new_env)
+        run(call_mpspdz(f"buckets-{size}", m * 3), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         max_value = int(file.readline())
-        res = literal_eval(file.read())[:len(request.configurations)]
+        res = literal_eval(file.read())[:m]
     remove(f"out-P{settings.id}-0")
     return [max_value] + res
 
 
 @app.put("/computeQuantiles")
 async def compute6(response: Response, request: ParameterizedComputeRequest):
-    with open("Programs/Public-Input/quantiles", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/quantiles-{size}", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -186,24 +214,27 @@ async def compute6(response: Response, request: ParameterizedComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("quantiles"), check=True, env=new_env)
+        run(call_mpspdz(f"quantiles-{size}", m * 10), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
     with open(f"out-P{settings.id}-0") as file:
         max_value = int(file.readline())
-        res = literal_eval(file.read())[settings.m - len(request.configurations):]
+        res = literal_eval(file.read())[size - m:]
     remove(f"out-P{settings.id}-0")
     return [max_value] + res
 
 
 @app.put("/computeTopIndividuals")
 async def compute7(response: Response, request: ParameterizedComputeRequest):
-    with open("Programs/Public-Input/top_individuals", 'w') as file:
+    n = len(request.configurations[0])
+    m = len(request.configurations)
+    size = determine_suffix(m)
+    with open(f"Programs/Public-Input/top_individuals-{size}", 'w') as file:
         try:
             file.write(f"{request.parameter}\n")
-            file.write(f"{len(request.configurations[0])}\n")
-            file.write(f"{len(request.configurations)}\n")
+            file.write(f"{n}\n")
+            file.write(f"{m}\n")
             for conf in request.configurations:
                 file.write("\n".join(str(i) for i in conf))
                 file.write("\n")
@@ -211,7 +242,7 @@ async def compute7(response: Response, request: ParameterizedComputeRequest):
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
     try:
-        run(call_mpspdz("top_individuals"), check=True, env=new_env)
+        run(call_mpspdz(f"top_individuals-{size}", m * 10), check=True, env=new_env)
     except CalledProcessError as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e.returncode
