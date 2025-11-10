@@ -255,7 +255,7 @@ async def compute_classification(
         return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computeClassification", json={'parameter': threshold,'configurations': data}, timeout=30.0))
+        ret.append(client.put(str(url) + "computeClassification", json={'parameter': threshold,'configurations': data}, timeout=300.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:
@@ -295,7 +295,7 @@ async def compute_buckets(
         return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computeBuckets", json={'parameter': count, 'configurations': data}, timeout=30.0))
+        ret.append(client.put(str(url) + "computeBuckets", json={'parameter': count, 'configurations': data}, timeout=300.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:
@@ -332,7 +332,7 @@ async def compute_quantiles(
         return Error(code=400, message="wrong data")
     ret = []
     for k, url in settings.peers.items():
-        ret.append(client.put(str(url) + "computeQuantiles", json={'parameter': count, 'configurations': data}, timeout=30.0))
+        ret.append(client.put(str(url) + "computeQuantiles", json={'parameter': count, 'configurations': data}, timeout=300.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:
@@ -370,7 +370,7 @@ async def compute_top_individuals(
     ret = []
     for k, url in settings.peers.items():
         ret.append(client.put(str(url) + "computeTopIndividuals", json={'parameter': count, 'configurations': data},
-                              timeout=30.0))
+                              timeout=300.0))
     try:
         ret = await gather(*ret)
     except ReadTimeout:

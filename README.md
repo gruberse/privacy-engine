@@ -115,6 +115,18 @@ MP-SPDZ 0.4.1
 |        400 | 0.87s | 0.88s | 0.90s | 0.90s |   0.92s |
 |        500 | 0.98s | 1.03s | 1.03s | 1.04s |   1.05s |
 
+### Latency (100x100 matrix, population 500, 2 repetitions)
+
+Latency is one-way delay from `tc qdisc add dev eth0 root netem delay □ms`
+
+| Method         |     0 |      1 |      2 |      5 |      10 |
+|:---------------|------:|-------:|-------:|-------:|--------:|
+| order          | 1.04s |  2.40s |  3.77s |  7.70s |  14.19s |
+| classification | 0.88s |  3.53s |  5.86s | 12.68s |  23.99s |
+| buckets        | 3.71s | 24.02s | 42.40s | 96.66s | 186.30s |
+| quantiles      | 1.64s |  3.92s |  6.17s | 12.80s |  23.74s |
+| top            | 1.04s |  2.38s |  3.70s |  7.53s |  13.93s |
+
 ## Cannot replicate at the moment
 
 ### lap_solver (exact solution; average of 10 runs with random matrices)

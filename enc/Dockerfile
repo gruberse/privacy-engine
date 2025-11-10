@@ -65,4 +65,4 @@ COPY --from=builder /dist /
 ARG n
 ENV n=$n
 
-ENTRYPOINT /encode/encode
+ENTRYPOINT exec /encode/encode

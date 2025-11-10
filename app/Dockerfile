@@ -21,4 +21,4 @@ FROM base
 
 COPY --from=builder /dist /
 
-ENTRYPOINT /main/main
+ENTRYPOINT exec /main/main
