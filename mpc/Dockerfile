@@ -26,6 +26,8 @@ COPY classification.mpc Programs/Source
 COPY buckets.mpc Programs/Source
 COPY quantiles.mpc Programs/Source
 COPY top_individuals.mpc Programs/Source
+COPY lap_solver.mpc Programs/Source
+COPY munkres.mpc Programs/Source
 
 ARG n
 ENV n=$n
@@ -64,6 +66,9 @@ RUN python3 compile.py -Ol -F 64 classification 500
 RUN python3 compile.py -Ol -F 64 buckets 500
 RUN python3 compile.py -Ol -F 64 quantiles 500
 RUN python3 compile.py -Ol -F 64 top_individuals 500
+
+RUN python3 compile.py -Ol -F 64 lap_solver
+RUN python3 compile.py -Ol -F 64 munkres
 
 RUN sed -i '14s/$/ -days 365/' Scripts/setup-ssl.sh
 RUN Scripts/setup-ssl.sh 3
@@ -105,6 +110,10 @@ COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/quantiles-*.bc /Programs/Bytec
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/quantiles*.sch /Programs/Schedules/
 COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/top_individuals-*.bc /Programs/Bytecode/
 COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/top_individuals*.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/lap_solver-*.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/lap_solver*.sch /Programs/Schedules/
+COPY --from=builder /MP-SPDZ-$v/Programs/Bytecode/munkres-*.bc /Programs/Bytecode/
+COPY --from=builder /MP-SPDZ-$v/Programs/Schedules/munkres*.sch /Programs/Schedules/
 
 COPY --from=builder /dist /
 

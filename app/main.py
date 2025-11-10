@@ -385,5 +385,56 @@ async def compute_top_individuals(
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message=f"unexpected error: {res}")
 
+
+@app.put("/computeExact",
+         summary="Compute an exact solution using lap_solver",
+         tags=["secret-shared"],
+         responses={200: {"model": List[Tuple[int, int]]},
+                    500: {"model": Error}})
+async def compute_exact(response: Response):
+    """
+    Compute the exact solution using lap_solver
+    """
+    ret = []
+    for k, url in settings.peers.items():
+        ret.append(client.put(str(url) + "computeExact", timeout=3000.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message="timeout on one of the MPC nodes")
+    res = ret[0]
+    if all(r.status_code == 200 for r in ret):
+        return res.json()
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message=f"unexpected error: {res}")
+
+
+@app.put("/computeMunkres",
+         summary="Compute an exact solution using munkres",
+         tags=["secret-shared"],
+         responses={200: {"model": List[Tuple[int, int]]},
+                    500: {"model": Error}})
+async def compute_munkres(response: Response):
+    """
+    Compute the exact solution using munkres
+    """
+    ret = []
+    for k, url in settings.peers.items():
+        ret.append(client.put(str(url) + "computeMunkres", timeout=3000.0))
+    try:
+        ret = await gather(*ret)
+    except ReadTimeout:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message="timeout on one of the MPC nodes")
+    res = ret[0]
+    if all(r.status_code == 200 for r in ret):
+        return res.json()
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Error(code=500, message=f"unexpected error: {res}")
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

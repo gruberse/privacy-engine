@@ -1,8 +1,6 @@
 program.use_edabit(True)
 
 import os
-from Compiler.types import cint
-from Compiler.types import sint
 
 N = int(os.getenv("n"))
 
@@ -14,19 +12,13 @@ v = sint.Array(N)
 
 temp = sint.Array(N)
 
-@for_range(N)
+@for_range_opt(N, budget=100000)
 def _(i):
-    @for_range_opt(N)
-    def _(j):
-        temp[j] = cost[i][j]
-    u[i] = tree_reduce(lambda x, y: x.min(y), temp)
+    u[i] = tree_reduce(lambda x, y: x.min(y), cost[i])
 
-@for_range(N)
+@for_range_opt(N, budget=100000)
 def _(j):
-    @for_range_opt(N)
-    def _(i):
-        temp[i] = cost[i][j] - u[i]
-    v[j] = tree_reduce(lambda x, y: x.min(y), temp)
+    v[j] = tree_reduce(lambda x, y: x.min(y), cost.get_column(j) - u[:])
 
 l_mate = regint.Array(N)
 r_mate = regint.Array(N)
@@ -35,9 +27,9 @@ r_mate.assign_all(-1)
 
 mated = regint(0)
 
-@for_range(N)
+@for_range_opt(N)
 def _(i):
-    @for_range(N)
+    @for_range_opt(N)
     def _(j):
         @if_((r_mate[j] == -1).bit_and(l_mate[i] == -1).bit_and((cost[i][j] - u[i] - v[j]).reveal() == 0))
         def _():
@@ -68,17 +60,41 @@ def f():
 
     @do_while
     def f0():
-        j.write(-1)
-        @for_range(N)
-        def f1(k):
-            @if_(seen[k].bit_not().bit_and((j == -1).bit_or(dist[k] < dist[j]).reveal()))
-            def f2():
-                j.write(k)
+        def op(a, b):
+            res = regint(0)
+            @if_e(a == -1)
+            def _():
+                res.update(b)
+            @else_
+            def _():
+                @if_e(b == -1)
+                def _():
+                    res.update(a)
+                @else_
+                def _():
+                    @if_e(seen[a])
+                    def _():
+                        @if_e(seen[b])
+                        def _():
+                            res.update(-1)
+                        @else_
+                        def _():
+                            res.update(b)
+                    @else_
+                    def _():
+                        @if_e(seen[b])
+                        def _():
+                            res.update(a)
+                        @else_
+                        def _():
+                            res.update((dist[a] < dist[b]).reveal().if_else(a, b))
+            return res
+        j.write(tree_reduce(op, range(N)))
         seen[j] = 1
         i = regint(r_mate[j])
         @if_(i != -1)
         def f1():
-            @for_range(N)
+            @for_range_opt(N)
             def f2(k):
                 @if_(seen[k].bit_not())
                 def f3():
@@ -109,4 +125,4 @@ def f():
     l_mate[s] = j
     mated.update(mated + 1)
 
-print_ln('%s', l_mate)
+print_ln('%s', l_mate.reveal_list())

@@ -48,7 +48,7 @@ def determine_suffix(m: int):
         return 500
 
 
-def call_mpspdz(program: str, batch: int):
+def call_mpspdz(program: str, batch: int = 10000):
     if settings.algorithm == "shamir":
         return ["./shamir-party.x", str(settings.id), program, "-ip", "Parties", "-N", "3", "--batch-size", str(batch), "-OF", "out"]
     elif settings.algorithm == "replicated":
@@ -166,7 +166,20 @@ async def compute4(response: Response):
     with open(f"out-P{settings.id}-0") as file:
         res = literal_eval(file.read())
     remove(f"out-P{settings.id}-0")
-    return [i for i, x in enumerate(res) if x]
+    return res
+
+
+@app.put("/computeMunkres")
+async def compute8(response: Response):
+    try:
+        run(call_mpspdz("munkres"), check=True, env=new_env)
+    except CalledProcessError as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return e.returncode
+    with open(f"out-P{settings.id}-0") as file:
+        res = literal_eval(file.read())
+    remove(f"out-P{settings.id}-0")
+    return res
 
 
 @app.put("/computeBuckets")

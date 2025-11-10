@@ -1,0 +1,387 @@
+program.use_edabit(True)
+
+import os
+
+N = int(os.getenv("n"))
+
+matrix = sint.Matrix(N, N)
+matrix.read_from_file(0)
+
+row_covered = regint.Array(N)
+col_covered = regint.Array(N)
+marked = regint.Matrix(N, N)
+Z0_r = MemValue(0)
+Z0_c = MemValue(0)
+path = regint.Matrix(2*N, 2*N)
+
+@for_range_opt(2*N)
+def _(i):
+  @for_range_opt(2*N)
+  def _(j):
+    path[i][j] = 0
+
+@function
+def print_state():
+  @for_range_opt(N)
+  def _(i):
+    @for_range_opt(N)
+    def _(j):
+      print_str_if((row_covered[i] == 1) | (col_covered[j] == 1), " XX ")
+      print_str_if((row_covered[i] == 0) & (col_covered[j] == 0), " %s ", matrix[i][j].reveal())
+    print_ln("")
+
+@function
+def print_path():
+  @for_range_opt(N*2)
+  def _(i):
+    print_ln("%s", [x for x in path[i]])
+
+@function
+def clear_covers():
+  for i in range(N):
+    col_covered[i] = 0
+    row_covered[i] = 0
+
+@function
+def clear_marked():
+  for i in range(N):
+    for j in range(N):
+      marked[i][j] = 0
+
+@function
+def find_a_zero(i, j):
+  # start_timer(7)
+  # print_ln("find_a_zero(%s, %s)", i, j)
+  # print_state()
+  row = regint(-1)
+  col = regint(-1)
+  i_ = regint(i)
+  j_ = regint(j)
+  done = regint(0)
+  @while_do(lambda: done == 0)
+  def _():
+    # print_ln('find a zero 00: %s %s', i_, j_)
+    j_.update(j)
+    @do_while
+    def _():
+      # print_ln('find a zero 11: %s %s', i_, j_)
+      @if_((col_covered[j_] == 0) & (row_covered[i_] == 0))
+      def _():
+        @if_((matrix[i_][j_] == 0).reveal())
+        def _():
+          row.update(i_)
+          col.update(j_)
+          done.update(1)
+      j_.update((j_ + 1) % N)
+      cont = regint(1)
+      @if_(j_ == j)
+      def _():
+        cont.update(0)
+      return cont
+    i_.update((i_ + 1) % N)
+    @if_(i_ == i)
+    def _():
+      done.update(1)
+  # print_ln("%s %s", row, col)
+  # stop_timer(7)
+  return row, col
+
+@function
+def find_star_in_row(row):
+  # print_ln("find_star_in_row(%s)", row)
+  # @for_range_opt(N)
+  # def _(i):
+  #   print_ln("%s", [x for x in marked[i]])
+  col = regint(-1)
+  j = regint(0)
+  @while_do(lambda: j < N)
+  def _():
+    @if_(marked[row][j] == 1)
+    def _():
+      col.update(j)
+      j.update(N)
+    j.update(j + 1)
+    return j
+  # print_ln("%s", col)
+  return col
+
+@function
+def find_star_in_col(col):
+  # print_ln("find_star_in_col(%s)", col)
+  # @for_range_opt(N)
+  # def _(i):
+  #   print_ln("%s", [x for x in marked[i]])
+  row = regint(-1)
+  i = regint(0)
+  @while_do(lambda: i < N)
+  def _():
+    @if_(marked[i][col] == 1)
+    def _():
+      row.update(i)
+      i.update(N)
+    i.update(i + 1)
+    return i
+  # print_ln("%s", row)
+  return row
+
+@function
+def find_prime_in_row(row):
+  # print_ln("find_prime_in_row(%s)", row)
+  # @for_range_opt(N)
+  # def _(i):
+  #   print_ln("%s", [x for x in marked[i]])
+  col = regint(-1)
+  j = regint(0)
+  @while_do(lambda: j < N)
+  def _():
+    @if_(marked[row][j] == 2)
+    def _():
+      col.update(j)
+      j.update(N)
+    j.update(j + 1)
+    return j
+  # print_ln("%s", col)
+  return col
+
+@function
+def convert_path(count):
+  # print_ln("convert_path(%s)", count)
+  @for_range_opt(count + 1)
+  def _(i):
+    @if_e(marked[path[i][0]][path[i][1]] == 1)
+    def _():
+      marked[path[i][0]][path[i][1]] = 0
+    @else_
+    def _():
+      marked[path[i][0]][path[i][1]] = 1
+
+@function
+def erase_primes():
+  @for_range_opt(N)
+  def _(i):
+    @for_range_opt(N)
+    def _(j):
+      @if_(marked[i][j] == 2)
+      def _():
+        marked[i][j] = 0
+
+@function
+def find_smallest():
+  # start_timer(8)
+  # print_ln("find_smallest()")
+  # print_state()
+  i0 = regint(0)
+  j0 = regint(0)
+  @while_do(lambda: row_covered[i0] == 1)
+  def _():
+    i0.update(i0 + 1)
+  @while_do(lambda: col_covered[j0] == 1)
+  def _():
+    j0.update(j0 + 1)
+  v = MemValue(matrix[i0][j0])
+  @for_range_opt(N)
+  def _(i):
+    @for_range_opt(N)
+    def _(j):
+      @if_((row_covered[i] == 0) & (col_covered[j] == 0))
+      def _():
+        v.write(v.min(matrix[i][j]))
+  # print_ln("%s", v.reveal())
+  # stop_timer(8)
+  return v.read()
+
+@function
+def step1():
+  # start_timer(1)
+  # print_ln("step 1")
+  @for_range_opt(N)
+  def _(i):
+    min = tree_reduce(lambda x, y: x.min(y), matrix[i])
+    @for_range_opt(N)
+    def _(j):
+      matrix[i][j] -= min
+  # stop_timer(1)
+  return 2
+
+@function
+def step2():
+  # start_timer(2)
+  # print_ln("step 2")
+  @for_range_opt(N)
+  def _(i):
+    done = regint(0)
+    j = regint(0)
+    @while_do(lambda: (j < N) & (done == 0))
+    def _():
+      @if_((col_covered[j] == 0) & (row_covered[i] == 0) & (matrix[i][j] == 0).reveal())
+      def _():
+        # print_ln("step2: found zero at %s %s", i, j)
+        marked[i][j] = 1
+        col_covered[j] = 1
+        row_covered[i] = 1
+        done.update(1)
+      j.update(j + 1)
+  clear_covers()
+  # stop_timer(2)
+  return 3
+
+@function
+def step3():
+  # start_timer(3)
+  # print_ln("step 3")
+  count = MemValue(0)
+  @for_range_opt(N)
+  def _(i):
+    @for_range_opt(N)
+    def _(j):
+      @if_((marked[i][j] == 1) & (col_covered[j] == 0))
+      def _():
+        col_covered[j] = 1
+        count.write(count + 1)
+  # print_ln('count %s', count)
+  ret = regint(4)
+  @if_(count >= N)
+  def _():
+    ret.update(0)
+  # stop_timer(3)
+  return ret
+
+@function
+def step4():
+  # start_timer(4)
+  # print_ln("step 4")
+  row = regint(0)
+  col = regint(0)
+  ret = MemValue(0)
+  @while_do(lambda: ret.read() == 0)
+  def _():
+    r, c = find_a_zero(row, col)
+    row.update(r)
+    col.update(c)
+    @if_e(row < 0)
+    def _():
+      ret.write(6)
+    @else_
+    def _():
+      marked[row][col] = 2
+      star_col = find_star_in_row(row)
+      @if_e(star_col >= 0)
+      def _():
+        col.update(star_col)
+        row_covered[row] = 1
+        col_covered[col] = 0
+      @else_
+      def _():
+        Z0_r.write(row)
+        Z0_c.write(col)
+        ret.write(5)
+  # stop_timer(4)
+  return ret.read()
+
+@function
+def step5():
+  # start_timer(5)
+  # print_ln("step 5")
+  count = regint(0)
+  path[0][0] = Z0_r
+  path[0][1] = Z0_c
+  done = regint(0)
+  @while_do(lambda: done == 0)
+  def _():
+    # print_path()
+    # print_ln("count a %s", count)
+    row = find_star_in_col(path[count][1])
+    @if_e(row >= 0)
+    def _():
+      index = count + 1
+      # print_ln("count b0 %s", count)
+      # print_ln("%s", [x for x in path[count]])
+      count.iadd(1)
+      # print_ln("count b1 %s", count)
+      # print_ln("%s", [x for x in path[count]])
+      path[index][0] = row
+      path[index][1] = path[index - 1][1]
+      # print_ln("count b2 %s", count)
+    @else_
+    def _():
+      done.update(1)
+    @if_(done == 0)
+    def _():
+      # print_ln("count c0 %s", count)
+      # print_ln("%s", [x for x in path[count]])
+      col = find_prime_in_row(path[count][0])
+      index = count + 1
+      count.iadd(1)
+      # print_ln("count c1 %s", count)
+      # print_ln("%s", [x for x in path[count]])
+      path[index][0] = path[index - 1][0]
+      path[index][1] = col
+      # print_ln("count c2 %s", count)
+  convert_path(count)
+  clear_covers()
+  erase_primes()
+  # stop_timer(5)
+  return 3
+
+@function
+def step6():
+  # start_timer(6)
+  # print_ln("step 6")
+  min_val = find_smallest()
+  events = MemValue(0)
+  @for_range_opt(N)
+  def _(i):
+    @for_range_opt(N)
+    def _(j):
+      @if_(row_covered[i] == 1)
+      def _():
+        matrix[i][j] += min_val
+        events.write(events.read() + 1)
+      @if_(col_covered[j] == 0)
+      def _():
+        matrix[i][j] -= min_val
+        events.write(events.read() + 1)
+      @if_((row_covered[i] == 1) & (col_covered[j] == 0))
+      def _():
+        events.write(events.read() - 2)
+  runtime_error_if(events.read() == 0, "Matrix cannot be solved")
+  # stop_timer(6)
+  return 4
+
+clear_covers()
+clear_marked()
+# print_state()
+i = MemValue(1)
+
+@do_while
+def _():
+  @if_(i == 1)
+  def _():
+    i.write(step1())
+  @if_(i == 2)
+  def _():
+    i.write(step2())
+  @if_(i == 3)
+  def _():
+    i.write(step3())
+  @if_(i == 4)
+  def _():
+    i.write(step4())
+  @if_(i == 5)
+  def _():
+    i.write(step5())
+  @if_(i == 6)
+  def _():
+    i.write(step6())
+  return i.read()
+
+res = regint.Array(N)
+@for_range_opt(N)
+def _(i):
+    @for_range_opt(N)
+    def _(j):
+      @if_(marked[i][j])
+      def _():
+        res[i] = j
+
+print_ln('%s', res)
