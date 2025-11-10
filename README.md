@@ -62,8 +62,10 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 Ubuntu 24.04.3 LTS  
 16 x Intel(R) Xeon(R) W-2245 CPU @ 3.90GHz  
-MP-SPDZ 0.4.1  
-`bench.py` @ 13cfd282
+MP-SPDZ 0.4.1, `rep_field`  
+`bench.py` @ 13cfd282  
+`bench_latency.py` @ e7736f7c  
+`bench_exacty.py` @ 05ca03e0
 
 ### Order
 
@@ -127,13 +129,8 @@ Latency is one-way delay from `tc qdisc add dev eth0 root netem delay □ms`
 | quantiles      | 1.64s |  3.92s |  6.17s | 12.80s |  23.74s |
 | top            | 1.04s |  2.38s |  3.70s |  7.53s |  13.93s |
 
-## Cannot replicate at the moment
+### Exact solutions (100x100 matrix, 10 repetitions)
 
-### lap_solver (exact solution; average of 10 runs with random matrices)
-
-| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
-|---------|-------------|-----------------|---------------------------|
-| 0 ms    | -           | -               | 35                        |
-| 1 ms    | -           | -               | -                         |
-| 5 ms    | -           | -               | -                         |
-| 10 ms   | -           | -               | -                         |
+| latency | lap_solver | munkres |
+|--------:|-----------:|--------:|
+|    0 ms |        52s | \> 600s |
