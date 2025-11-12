@@ -136,4 +136,4 @@ Latency is one-way delay from `tc qdisc add dev eth0 root netem delay □ms`
 | Latency | lap_solver |  munkres |
 |--------:|-----------:|---------:|
 |       0 |        52s |  \> 600s |
-|       1 |    \> 600s |      ... |
+|       1 |       550s |      ... |
