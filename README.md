@@ -131,6 +131,9 @@ Latency is one-way delay from `tc qdisc add dev eth0 root netem delay □ms`
 
 ### Exact solutions (100x100 matrix, 10 repetitions)
 
-| latency | lap_solver | munkres |
-|--------:|-----------:|--------:|
-|    0 ms |        52s | \> 600s |
+Latency is one-way delay from `tc qdisc add dev eth0 root netem delay □ms`
+
+| Latency | lap_solver |  munkres |
+|--------:|-----------:|---------:|
+|       0 |        52s |  \> 600s |
+|       1 |    \> 600s |      ... |
