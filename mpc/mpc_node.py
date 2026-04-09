@@ -70,7 +70,6 @@ async def create_session(response: Response, request: MatrixSetup):
         except OSError as e:
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return e.errno
-    return
 
 
 @app.put("/computeFitnessClear")

@@ -3,18 +3,19 @@ import random
 import requests
 import time
 
-N = 100
-M = 500
+N = 35
+W = 80
+M = 200
 
-weights = [[random.randint(0, 128) for _ in range(N)] for _ in range(N)]
+weights = [[random.randint(0, 256) for _ in range(W)] for _ in range(N)]
 mapping = {f"Airline {n}": [n] for n in range(M)}
 configs = []
 decoder = json.JSONDecoder()
 
 for _ in range(M):
-    config = list(range(N))
+    config = list(range(W))
     random.shuffle(config)
-    configs.append(config)
+    configs.append(config[:N])
 
 print("\tGet Status")
 print(requests.get("http://127.0.0.1:80/status"))

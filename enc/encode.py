@@ -48,7 +48,7 @@ def split(data: List[List[int]]):
 
 
 @app.put("/", response_model=Mapping[str, str])
-async def test(data: List[List[int]] = Body(default=[], example=[[2, 3], [4, 5]])):
+async def test(data: List[List[int]] = Body(default=[], examples=[[[2, 3], [4, 5]]])):
     """
     Secret-share a weight-map
     Input is a rectangular matrix

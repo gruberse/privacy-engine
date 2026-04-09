@@ -123,6 +123,6 @@ ENV n=$n
 ENV m=$m
 
 # RUN apt install -y iproute2
-# ENTRYPOINT tc qdisc add dev eth0 root netem delay 0ms && /mpc_node/mpc_node
+# ENTRYPOINT tc qdisc add dev eth0 root netem delay 1ms && /mpc_node/mpc_node
 
 ENTRYPOINT exec /mpc_node/mpc_node

@@ -3,7 +3,7 @@ import random
 import requests
 import statistics
 import time
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import pandas
 
 decoder = json.JSONDecoder()
@@ -21,9 +21,10 @@ ys = []
 
 Ns = [20, 40, 60, 80, 100]
 Ms = [100, 200, 300, 400, 500]
-repetitions = 10
-methods = ["order", "classification", "buckets", "quantiles", "top"]
+repetitions = 101
+methods = ["clear", "order", "classification", "buckets", "quantiles", "top"]
 
+clear = {n: {m: [] for m in Ms} for n in Ns}
 order = {n: {m: [] for m in Ms} for n in Ns}
 classification = {n: {m: [] for m in Ms} for n in Ns}
 buckets = {n: {m: [] for m in Ms} for n in Ns}
@@ -46,6 +47,11 @@ for N in Ns:
             xs.append(N)
             ys.append(M)
             configs = generate_configs(N, M)
+
+            t1 = time.time()
+            r2 = requests.put("http://127.0.0.1:80/computeFitnessClear", json=configs)
+            t2 = time.time()
+            clear[N][M].append(t2 - t1)
 
             t1 = time.time()
             r3 = requests.put("http://127.0.0.1:80/computePopulationOrder", json=configs)
@@ -72,13 +78,14 @@ for N in Ns:
             t2 = time.time()
             top[N][M].append(t2 - t1)
 
-for name, zs in zip(methods, [order, classification, buckets, quantiles, top]):
+for name, zs in zip(methods, [clear, order, classification, buckets, quantiles, top]):
     print(name)
     df = pandas.DataFrame(zs)
     print(df.map(statistics.mean).to_markdown(floatfmt=".2f"))
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    fig.suptitle(name)
-    ax.scatter(xs, ys, df.values.flatten().tolist())
-    ax.set_xticks(Ns)
-    ax.set_yticks(Ms)
-    plt.savefig(f"{name}-no_latency.png", format="png")
+    # print(df.map(statistics.mean).to_string(float_format=lambda f: format(f, ".2f")))
+    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    # fig.suptitle(name)
+    # ax.scatter(xs, ys, df.values.flatten().tolist())
+    # ax.set_xticks(Ns)
+    # ax.set_yticks(Ms)
+    # plt.savefig(f"{name}-no_latency.png", format="png")

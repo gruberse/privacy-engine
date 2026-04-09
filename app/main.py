@@ -25,19 +25,19 @@ class Error(BaseModel):
 class AirlineMapping(BaseModel):
     mapping: Mapping[str, List[int]] = Field(
         title="A mapping from airlines to their flights",
-        example={"A": [0, 1], "B": [2, 3]})
+        examples=[{"A": [0, 1], "B": [2, 3]}])
 
 
 class PlainTextSetup(AirlineMapping):
     weights: List[List[int]] = Field(
         title="A square matrix of integer-valued weights; each flight is one row; each slot is one column",
-        example=[[2, 3], [4, 5]])
+        examples=[[[2, 3], [4, 5]]])
 
 
 class SecretSharedSetup(AirlineMapping):
     weights: Mapping[str, str] = Field(
         title="A mapping of secret-shared integer-valued square matrices to each of the MPC nodes",
-        example={"A": [[45, 32], [91, 34]], "B": [[98, 23], [12, 9]], "C": [[76, 42], [99, 58]]})
+        examples=[{"A": [[45, 32], [91, 34]], "B": [[98, 23], [12, 9]], "C": [[76, 42], [99, 58]]}])
 
 
 class MaxOrderedResponse(BaseModel):
@@ -57,7 +57,7 @@ class BucketQuantileResponse(BaseModel):
 
 
 class ClearingRequest(BaseModel):
-    data: List[int] = Field(title="A configuration", example=[1, 0])
+    data: List[int] = Field(title="A configuration", examples=[[1, 0]])
 
 
 class ClearingResponse(BaseModel):
@@ -103,9 +103,7 @@ async def create_session_clear(response: Response, request: PlainTextSetup):
     except ReadTimeout:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Error(code=500, message="timeout on one of the MPC nodes")
-    if all(r.status_code == 201 for r in ret):
-        return
-    else:
+    if any(r.status_code != 201 for r in ret):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return Error(code=503, message="Could not query MPC ports")
 
@@ -115,7 +113,10 @@ async def get_nodes():
     return list(settings.peers.values())
 
 
-@app.get("/status", responses={500: {"model": Error}, 503: {"model": Error}}, tags=["info"])
+@app.get("/status", status_code=status.HTTP_200_OK,
+         summary="Returns OK if all MPC nodes are available",
+         tags=["info"],
+         responses={500: {"model": Error}, 503: {"model": Error}})
 async def get_status(response: Response):
     ret = []
     for k, url in settings.peers.items():
@@ -162,14 +163,14 @@ async def create_session_secret(response: Response, request: SecretSharedSetup):
 
 
 @app.put("/computeFitnessClear",
-         summary="Compute and output a fitness value",
+         summary="Compute and output a list of clear-text fitness values",
          tags=["test-only"],
          responses={200: {"model": List[int]}, 400: {"model": Error}, 500: {"model": Error}})
 async def compute_fitness_clear(
         response: Response,
-        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+        data: List[List[int]] = Body(examples=[[[0, 1], [1, 0]]])):
     """
-    Return a list of clear-text fitness value for a given list of configuration.
+    Return a list of clear-text fitness values for a given list of configuration.
     For a weight-map [[12, 13], [23, 34]], an input of [[0, 1], [1, 0]] should return [46, 36].
     """
     size = len(data)
@@ -203,7 +204,7 @@ async def compute_fitness_clear(
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_population_order(
         response: Response,
-        data: List[List[int]] = Body(example=[[1, 0], [0, 1]])):
+        data: List[List[int]] = Body(examples=[[[1, 0], [0, 1]]])):
     """
     Return the maximum fitness value and an ordered list of configurations.
     For a weight-map [[12, 13], [23, 34]], an input of [[0, 1], [1, 0]] should return a maximum of 46 and a list [0, 1].
@@ -234,14 +235,14 @@ async def compute_population_order(
 
 
 @app.put("/computeClassification/{threshold}",
-         summary="Classify a population",
+         summary="Classify a population according to a threshold",
          tags=["secret-shared"],
          responses={200: {"model": ClassificationResponse},
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_classification(
         response: Response,
         threshold: int,
-        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+        data: List[List[int]] = Body(examples=[[[0, 1], [1, 0]]])):
     """
     Return an unordered list of configurations that exceed a desired threshold
     """
@@ -266,7 +267,6 @@ async def compute_classification(
         indices = res.json()
         if len(indices) < 4:
             return await compute_top_individuals(response, 3, data)
-        # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
         return ClassificationResponse(highest=indices[0], best=False, indices=indices[1:])
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -274,14 +274,14 @@ async def compute_classification(
 
 
 @app.put("/computeBuckets/{count}",
-         summary="",
+         summary="Classify a population into equally-spaced buckets",
          tags=["secret-shared"],
          responses={200: {"model": BucketQuantileResponse},
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_buckets(
         response: Response,
         count: int,
-        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+        data: List[List[int]] = Body(examples=[[[0, 1], [1, 0]]])):
     """
     Return a list, associating each input configuration to a bucket
     """
@@ -311,14 +311,14 @@ async def compute_buckets(
 
 
 @app.put("/computeQuantiles/{count}",
-         summary="",
+         summary="Classify a population into quantiles",
          tags=["secret-shared"],
          responses={200: {"model": BucketQuantileResponse},
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_quantiles(
         response: Response,
         count: int,
-        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+        data: List[List[int]] = Body(examples=[[[0, 1], [1, 0]]])):
     """
     Return a list, associating each input configuration to a quantile
     """
@@ -348,14 +348,14 @@ async def compute_quantiles(
 
 
 @app.put("/computeTopIndividuals/{count}",
-         summary="",
+         summary="Return a list of highest-scoring individuals",
          tags=["secret-shared"],
          responses={200: {"model": ClassificationResponse},
                     400: {"model": Error}, 500: {"model": Error}})
 async def compute_top_individuals(
         response: Response,
         count: int,
-        data: List[List[int]] = Body(example=[[0, 1], [1, 0]])):
+        data: List[List[int]] = Body(examples=[[[0, 1], [1, 0]]])):
     """
     Return a lexically sorted list of top configurations
     """
@@ -379,7 +379,6 @@ async def compute_top_individuals(
     res = ret[0]
     if all(r.status_code == 200 for r in ret):
         indices = res.json()
-        # TODO return ClassificationResponse(highest=values[0], best=bool(values[1]), indices=values[2:])
         return ClassificationResponse(highest=indices[0], best=False, indices=sorted([i-1 for i in indices[1:] if i != 0]))
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
