@@ -1,4 +1,4 @@
-# HARMONIC Privacy Engine
+# Privacy Engine
 
 ## Docker
 
@@ -12,8 +12,8 @@ There is a very basic test/benchmark script (`test.py`)
 Ubuntu 22.04.3 LTS  
 2 x Intel Core2 DUO E8400 @ 3GHz
 
-SlotMachine: MPyC 0.8  
-HARMONIC: MP-SPDZ 0.3.7
+X: MPyC 0.8  
+Y: MP-SPDZ 0.3.7
 
 Results in seconds for `test.py` @ 78a6bd35  
 matrix size 100; population size 500  
@@ -21,7 +21,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 ### Clear (fitness value of a single configuration)
 
-| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| latency |           X | Y        Shamir | Y        Replicated Field |
 |---------|-------------|-----------------|---------------------------|
 | 0 ms    | 0.63        | 0.55            | 0.54                      |
 | 1 ms    | -           | 0.58            | 0.66                      |
@@ -30,7 +30,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 ### Order (sorted fitness values of 500 configurations)
 
-| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| latency | X           | Y        Shamir | Y        Replicated Field |
 |---------|-------------|-----------------|---------------------------|
 | 0 ms    | 100.15      | 10.84           | 1.93                      |
 | 1 ms    | -           | 19.15           | 4.68                      |
@@ -39,7 +39,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 ### Classification (500 configurations, 2 classes)
 
-| latency | SlotMachine | HARMONIC Shamir<sup>*</sup> | HARMONIC Replicated Field<sup>*</sup> |
+| latency | X           | Y        Shamir<sup>*</sup> | Y        Replicated Field<sup>*</sup> |
 |---------|-------------|-----------------------------|---------------------------------------|
 | 0 ms    | 11.22       | 0.86                        | 1.21                                  |
 | 1 ms    | -           | 1.52                        | 4.28                                  |
@@ -50,7 +50,7 @@ variable one-way delay (`tc qdisc add dev eth0 root netem delay □ms`)
 
 ### lap_solver (exact solution; average of 10 runs with random matrices)
 
-| latency | SlotMachine | HARMONIC Shamir | HARMONIC Replicated Field |
+| latency | X           | Y        Shamir | Y        Replicated Field |
 |---------|-------------|-----------------|---------------------------|
 | 0 ms    | -           | -               | 175                       |
 | 1 ms    | -           | -               | 650                       |
